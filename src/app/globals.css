@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --os-background: #f5f5f3;
+  --os-surface: #fafaf8;
+  --os-text: #1a1a1a;
+  --os-text-muted: #6f6f68;
+  --os-border: #e0e0db;
+  --os-hover: #f0f0ed;
+  --os-dot: rgba(0, 0, 0, 0.03);
+}
+
+.dark {
+  --os-background: #111111;
+  --os-surface: rgba(23, 23, 23, 0.72);
+  --os-text: #f5f5f3;
+  --os-text-muted: #a5a5a0;
+  --os-border: rgba(255, 255, 255, 0.14);
+  --os-hover: rgba(255, 255, 255, 0.08);
+  --os-dot: rgba(255, 255, 255, 0.04);
+}
+
+@theme inline {
+  --color-background: var(--os-background);
+  --color-foreground: var(--os-text);
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", ui-monospace, "Cascadia Code",
+    "Roboto Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+body {
+  background: var(--os-background);
+  color: var(--os-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv01", "cv02", "cv03", "cv04";
+  min-height: 100vh;
+}
+
+.text-ui {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.text-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.text-window-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.text-hero-title {
+  font-family: var(--font-sans);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.text-hero-subtitle {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+.font-mono-ui {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+}
