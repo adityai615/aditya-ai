@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { APP_DEFINITIONS } from "@/lib/apps";
+import { CommandPalette } from "../components/os/CommandPalette";
 import { Desktop } from "../components/os/Desktop";
 import { Dock } from "../components/os/Dock";
 import { TopBar } from "../components/os/TopBar";
@@ -8,13 +10,11 @@ import type { WallpaperMeta, WindowType } from "../components/os/types";
 
 const windowTitles: Record<WindowType, string> = {
   agent: "Aditya's AI Assistant",
-  projects: "projects",
-  terminal: "terminal",
-  about: "about",
-  resume: "Resume",
-  calculator: "calculator",
-  settings: "settings",
-};
+  ...Object.fromEntries(
+    APP_DEFINITIONS.filter((app) => app.id !== "agent").map((app) => [app.id, app.title]),
+  ),
+  "activity-monitor": "activity monitor",
+} as Record<WindowType, string>;
 
 const STORAGE_KEY = "aditya-os-wallpaper";
 
@@ -36,10 +36,26 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
     isMinimized: false,
     isMaximized: false,
   },
+  github: {
+    x: 220,
+    y: 90,
+    zIndex: 11,
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+  },
+  "activity-monitor": {
+    x: 250,
+    y: 110,
+    zIndex: 12,
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+  },
   projects: {
     x: 260,
     y: 120,
-    zIndex: 11,
+    zIndex: 13,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -47,7 +63,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
   terminal: {
     x: 180,
     y: 80,
-    zIndex: 12,
+    zIndex: 14,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -55,7 +71,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
   about: {
     x: 300,
     y: 140,
-    zIndex: 13,
+    zIndex: 15,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -63,7 +79,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
   resume: {
     x: 340,
     y: 160,
-    zIndex: 14,
+    zIndex: 16,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -71,7 +87,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
   calculator: {
     x: 220,
     y: 100,
-    zIndex: 15,
+    zIndex: 17,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -79,7 +95,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
   settings: {
     x: 380,
     y: 180,
-    zIndex: 16,
+    zIndex: 18,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
@@ -90,6 +106,7 @@ export default function Home() {
   const [activeWindow, setActiveWindow] = useState<WindowType>("agent");
   const [wallpapers, setWallpapers] = useState<WallpaperMeta[]>([]);
   const [wallpaper, setWallpaper] = useState<string>("");
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [windows, setWindows] =
     useState<Record<WindowType, WindowFrameState>>(initialWindowFrames);
 
@@ -128,14 +145,21 @@ export default function Home() {
   };
 
   const moveWindow = (window: WindowType, position: { x: number; y: number }) => {
-    setWindows((previous) => ({
-      ...previous,
-      [window]: {
-        ...previous[window],
-        x: position.x,
-        y: position.y,
-      },
-    }));
+    setWindows((previous) => {
+      const current = previous[window];
+      if (current.x === position.x && current.y === position.y) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        [window]: {
+          ...current,
+          x: position.x,
+          y: position.y,
+        },
+      };
+    });
   };
 
   const minimizeWindow = (window: WindowType) => {
@@ -204,7 +228,7 @@ export default function Home() {
 
   return (
     <main className="flex h-screen overflow-hidden flex-col text-[var(--os-text)]">
-      <TopBar />
+      <TopBar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
       <div className="flex flex-1 min-h-0">
         <Desktop
@@ -225,6 +249,11 @@ export default function Home() {
       </div>
 
       <Dock />
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onOpenChange={setIsCommandPaletteOpen}
+        onSelectApp={openWindow}
+      />
     </main>
   );
 }

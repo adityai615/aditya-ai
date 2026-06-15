@@ -221,7 +221,7 @@ export function Desktop({
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((previous) => !previous)}
-              className="absolute top-1/2 right-1 z-10 hidden -translate-y-1/2 rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.4)] p-1 text-[rgba(255,255,255,0.82)] transition-colors hover:bg-[rgba(255,255,255,0.1)] md:inline-flex"
+              className="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 translate-x-1/2 rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.4)] p-1 text-[rgba(255,255,255,0.82)] transition-colors hover:bg-[rgba(255,255,255,0.1)] md:inline-flex"
               aria-label={isSidebarCollapsed ? "Show desktop sidebar" : "Hide desktop sidebar"}
               title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
             >

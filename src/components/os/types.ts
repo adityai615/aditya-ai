@@ -1,11 +1,6 @@
-export type WindowType =
-  | "agent"
-  | "projects"
-  | "terminal"
-  | "about"
-  | "resume"
-  | "calculator"
-  | "settings";
+import type { AppId } from "@/lib/apps";
+
+export type WindowType = AppId;
 
 export type WallpaperMeta = {
   id: string;

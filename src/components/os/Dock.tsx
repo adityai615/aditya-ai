@@ -1,5 +1,6 @@
 import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
+import { GITHUB_USERNAME } from "@/lib/github";
 
 const dockItems: Array<{
   label: string;
@@ -9,7 +10,7 @@ const dockItems: Array<{
 }> = [
   {
     label: "github",
-    href: "https://github.com/adityai615",
+    href: `https://github.com/${GITHUB_USERNAME}`,
     active: true,
     icon: (
       <svg
@@ -61,7 +62,7 @@ const dockItems: Array<{
 
 export function Dock() {
   return (
-    <footer className="pointer-events-none fixed bottom-4 left-1/2 z-40 -translate-x-1/2">
+    <footer className="pointer-events-none fixed bottom-5 left-1/2 z-40 -translate-x-1/2">
       <nav className="pointer-events-auto flex w-fit items-end gap-4 rounded-[18px] border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.12)] px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-[30px] backdrop-saturate-[200%]">
         {dockItems.map((item) => (
           <div key={item.label} className="flex flex-col items-center gap-1">

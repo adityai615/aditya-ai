@@ -1,6 +1,8 @@
+import { ActivityMonitorWindow } from "./ActivityMonitorWindow";
 import { AboutWindow } from "./AboutWindow";
 import { AgentWindow } from "./AgentWindow";
 import { CalculatorWindow } from "./CalculatorWindow";
+import { GithubWindow } from "./GithubWindow";
 import { ProjectsWindow } from "./ProjectsWindow";
 import { ResumeWindow } from "./ResumeWindow";
 import { SettingsWindow } from "./SettingsWindow";
@@ -20,27 +22,23 @@ export function WindowRenderer({
   selectedWallpaper,
   onSelectWallpaper,
 }: WindowRendererProps) {
-  switch (windowType) {
-    case "projects":
-      return <ProjectsWindow />;
-    case "terminal":
-      return <TerminalWindow />;
-    case "about":
-      return <AboutWindow />;
-    case "resume":
-      return <ResumeWindow />;
-    case "calculator":
-      return <CalculatorWindow />;
-    case "settings":
-      return (
-        <SettingsWindow
-          wallpapers={wallpapers}
-          selectedWallpaper={selectedWallpaper}
-          onSelectWallpaper={onSelectWallpaper}
-        />
-      );
-    case "agent":
-    default:
-      return <AgentWindow />;
-  }
+  const renderers: Record<WindowType, JSX.Element> = {
+    agent: <AgentWindow />,
+    "activity-monitor": <ActivityMonitorWindow />,
+    projects: <ProjectsWindow />,
+    terminal: <TerminalWindow />,
+    about: <AboutWindow />,
+    resume: <ResumeWindow />,
+    calculator: <CalculatorWindow />,
+    settings: (
+      <SettingsWindow
+        wallpapers={wallpapers}
+        selectedWallpaper={selectedWallpaper}
+        onSelectWallpaper={onSelectWallpaper}
+      />
+    ),
+    github: <GithubWindow />,
+  };
+
+  return renderers[windowType] ?? <AgentWindow />;
 }
