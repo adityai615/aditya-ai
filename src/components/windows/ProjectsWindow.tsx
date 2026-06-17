@@ -169,6 +169,47 @@ const projects: Project[] = [
         "Prioritized render performance, predictable asset handling, and structured generation pipelines for scalable feature growth.",
     },
   },
+  {
+    id: "aditya-os",
+    number: "05",
+    name: "Aditya OS",
+    category: "Interactive Developer Portfolio",
+    description:
+      "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
+    tech: [
+      "Next.js 16",
+      "TypeScript",
+      "Tailwind CSS",
+      "Gemini API",
+      "Upstash Redis",
+      "Spotify Web API",
+    ],
+    achievements: [
+      "Working AI assistant powered by Gemini",
+      'Live "Top 50 India" Spotify chart',
+      "Multi-tap like system with real-time animations",
+      "Fully responsive mobile tab-based navigation",
+    ],
+    links: {},
+    details: {
+      problem:
+        "A traditional portfolio résumé page couldn't capture the depth of Aditya's full-stack and AI work — visitors needed an engaging, memorable way to explore projects and interact directly.",
+      architecture:
+        "Next.js app with a desktop-style window manager, server-side API routes for AI chat, Spotify, likes (Upstash Redis), and client-side state for draggable windows and mobile tab navigation.",
+      techStack:
+        "Next.js 14, TypeScript, Tailwind CSS, Anthropic Claude API for the AI agent, Upstash Redis for the global like counter, Spotify Web API for live chart data.",
+      keyFeatures: [
+        "Working AI assistant (powered by Claude) that answers visitor questions",
+        'Live "Top 50 India" Spotify chart',
+        "Multi-tap like system with real-time animations",
+        "Fully responsive mobile experience with a separate tab-based navigation layout",
+      ],
+      businessImpact:
+        "Delivers an immersive, production-deployed showcase of full-stack and AI capabilities that visitors can explore interactively.",
+      implementationNotes:
+        "Built as a self-referential meta-project — the portfolio itself is the demo, with real integrations for AI, music, and social engagement.",
+    },
+  },
 ];
 
 export function ProjectsWindow() {

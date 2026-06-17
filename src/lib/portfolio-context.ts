@@ -98,6 +98,28 @@ export const portfolioContext: PortfolioContext = {
   ],
   projects: [
     {
+      name: "Aditya OS",
+      category: "Interactive Developer Portfolio",
+      description:
+        "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
+      techStack: [
+        "Next.js 14",
+        "TypeScript",
+        "Tailwind CSS",
+        "Gemini API",
+        "Upstash Redis",
+        "Spotify Web API",
+      ],
+      keyFeatures: [
+        "Working AI assistant that answers visitor questions",
+        'Live "Top 50 India" Spotify chart',
+        "Multi-tap like system with real-time animations",
+        "Fully responsive mobile experience with a separate tab-based navigation layout",
+      ],
+      businessImpact:
+        "Showcases full-stack and AI capabilities through an immersive, production-deployed portfolio visitors can explore interactively.",
+    },
+    {
       name: "Luminare Voice Labs",
       category: "AI Voice CRM",
       description:

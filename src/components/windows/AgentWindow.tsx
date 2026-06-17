@@ -8,13 +8,18 @@ import { publishAgentSession } from "@/lib/agent-session";
 import { detectVisitorClient, type VisitorClientInfo } from "@/lib/visitor-client";
 
 const suggestions = [
-  "How did he build [Project]?",
+  "How did he build Luminare Voice Labs?",
   "What freelance work has he delivered?",
   "What's his tech stack?",
   "Can I hire him?",
 ];
 
-const ERROR_MESSAGE = "Something went wrong.\nPlease try again.";
+const MAX_INPUT_LENGTH = 2000;
+const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
+const REQUEST_TIMEOUT_MS = 20_000;
+
+const ERROR_MESSAGE = "Connection hiccup on my end. Try again in a moment?";
+const TIMEOUT_MESSAGE = "That took longer than expected — mind trying again?";
 
 type ChatMessage = {
   id: string;
@@ -22,9 +27,16 @@ type ChatMessage = {
   content: string;
 };
 
-function Avatar() {
+function Avatar({ size = "sm" }: { size?: "sm" | "lg" }) {
+  const sizeClasses =
+    size === "lg"
+      ? "h-10 w-10 rounded-xl text-[15px] md:h-12 md:w-12 md:text-[16px]"
+      : "h-7 w-7 rounded-lg text-[13px]";
+
   return (
-    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--os-surface)] text-[13px] font-medium text-[var(--os-text)]">
+    <div
+      className={`agent-avatar flex shrink-0 items-center justify-center font-medium text-[var(--os-text)] ${sizeClasses}`}
+    >
       A
     </div>
   );
@@ -126,7 +138,10 @@ export function AgentWindow() {
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const canSend = draft.trim().length > 0 && !isLoading;
+  const canSend =
+    draft.trim().length > 0 && draft.length <= MAX_INPUT_LENGTH && !isLoading;
+  const showCharCounter = draft.length >= COUNTER_THRESHOLD;
+  const isAtCharLimit = draft.length >= MAX_INPUT_LENGTH;
 
   useEffect(() => {
     let cancelled = false;
@@ -183,8 +198,12 @@ export function AgentWindow() {
   };
 
   const sendMessage = async (messageText: string) => {
+    if (isLoading) {
+      return;
+    }
+
     const trimmed = messageText.trim();
-    if (!trimmed || isLoading) {
+    if (!trimmed || trimmed.length > MAX_INPUT_LENGTH) {
       return;
     }
 
@@ -202,6 +221,9 @@ export function AgentWindow() {
     setDraft("");
     setIsLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
     try {
       const visitor = await ensureVisitorInfo();
 
@@ -217,6 +239,7 @@ export function AgentWindow() {
           },
           isFirstMessageInConversation,
         }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -241,16 +264,20 @@ export function AgentWindow() {
       if (payload.consumeFirstMessageRoast) {
         setHasRoasted(true);
       }
-    } catch {
+    } catch (error) {
+      const isTimeout =
+        error instanceof DOMException && error.name === "AbortError";
+
       setMessages((previous) => [
         ...previous,
         {
           id: `${Date.now()}-assistant-error`,
           role: "assistant",
-          content: ERROR_MESSAGE,
+          content: isTimeout ? TIMEOUT_MESSAGE : ERROR_MESSAGE,
         },
       ]);
     } finally {
+      window.clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
@@ -296,6 +323,32 @@ export function AgentWindow() {
         .message-enter {
           animation: message-fade-up 200ms ease-out;
         }
+        .agent-avatar {
+          background: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+            var(--os-surface);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.2);
+          transition: box-shadow 150ms ease;
+        }
+        .agent-composer-pill {
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+        .agent-composer-fade {
+          position: absolute;
+          top: -24px;
+          right: 0;
+          left: 0;
+          height: 24px;
+          background: linear-gradient(to bottom, transparent, var(--os-background));
+          pointer-events: none;
+        }
+        .agent-composer-input {
+          overflow-y: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .agent-composer-input::-webkit-scrollbar {
+          display: none;
+        }
         @media (max-width: 767px) {
           .agent-scroll {
             padding-bottom: calc(
@@ -316,20 +369,19 @@ export function AgentWindow() {
 
       <section className="agent-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-6 sm:py-5">
         {!hasStartedChat ? (
-          <div className="mx-auto flex w-full max-w-[760px] flex-col items-center px-1 text-center max-md:gap-3 max-md:pt-2 md:h-full md:justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] text-[15px] font-medium text-[var(--os-text)] md:h-12 md:w-12 md:text-[16px]">
-              A
-            </div>
+          <div className="mx-auto flex w-full max-w-[760px] flex-col items-center px-1 text-center max-md:gap-3 max-md:pt-2 md:h-full md:justify-center md:gap-6">
+            <Avatar size="lg" />
             <div>
               <p className="text-ui text-[14px] font-medium text-[var(--os-text)] md:text-[15px]">
                 Hey! I&apos;m Aditya&apos;s AI assistant.
               </p>
-              <p className="text-ui mt-1.5 max-w-[280px] text-[12px] leading-relaxed text-[var(--os-text-muted)] md:mt-2 md:text-[12.5px]">
-                Ask me about his projects, freelance work, tech stack, or whether
-                he&apos;s available to hire - I know it all.
+              <p className="text-ui mx-auto mt-1.5 max-w-[380px] text-[12px] leading-[1.55] text-[var(--os-text-muted)] md:mt-3 md:text-[13px]">
+                Ask me about his projects, freelance work, tech stack,
+                <br />
+                or whether he&apos;s available to hire - I know it all.
               </p>
             </div>
-            <div className="flex w-full max-w-[620px] flex-col gap-1.5 max-md:items-stretch md:flex-row md:flex-wrap md:justify-center md:gap-2">
+            <div className="flex w-full max-w-[620px] flex-col gap-1.5 max-md:items-stretch md:mt-1 md:flex-row md:flex-wrap md:justify-center md:gap-2.5">
               {suggestions.map((question) => (
                 <button
                   key={question}
@@ -355,37 +407,41 @@ export function AgentWindow() {
         )}
       </section>
 
-      <section className="agent-composer shrink-0 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2.5 sm:px-6 sm:py-4">
+      <section className="agent-composer relative shrink-0 bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5">
+        <div className="agent-composer-fade" aria-hidden="true" />
         <div className="mx-auto w-full max-w-[860px]">
-          <div className="flex items-end gap-2 rounded-2xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:px-4 sm:py-2.5">
+          <div className="agent-composer-pill flex items-end gap-2 rounded-2xl bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:px-3.5 sm:py-2 md:px-4 md:py-2.5">
             <textarea
               ref={textareaRef}
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              maxLength={MAX_INPUT_LENGTH}
+              onChange={(event) => setDraft(event.target.value.slice(0, MAX_INPUT_LENGTH))}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();
-                  handleSubmit();
+                  if (!isLoading) {
+                    handleSubmit();
+                  }
                 }
               }}
               placeholder="Ask anything about Aditya..."
               rows={1}
-              className="text-ui min-h-6 max-h-32 w-full flex-1 resize-none bg-transparent py-1.5 text-[var(--os-text)] outline-none placeholder:text-[var(--os-text-muted)] sm:max-h-40"
+              className="agent-composer-input text-ui min-h-5 max-h-32 w-full flex-1 resize-none bg-transparent py-1 leading-5 text-[var(--os-text)] outline-none placeholder:text-[var(--os-text-muted)] sm:max-h-40 md:min-h-6 md:py-1.5 md:text-[14px] md:leading-[1.45]"
             />
             <button
               type="button"
               onClick={handleSubmit}
               disabled={!canSend}
               aria-label="Send message"
-              className={`flex h-10 w-10 min-h-10 min-w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150 sm:h-11 sm:w-11 sm:min-h-11 sm:min-w-11 ${
+              className={`flex h-7 w-7 min-h-7 min-w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-150 md:h-8 md:w-8 md:min-h-8 md:min-w-8 ${
                 canSend
                   ? "bg-[var(--os-text)] text-[var(--os-background)]"
                   : "bg-[var(--os-border)] text-[var(--os-text-muted)]"
               }`}
             >
               <svg
-                width="15"
-                height="15"
+                width="13"
+                height="13"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -393,13 +449,23 @@ export function AgentWindow() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 aria-hidden="true"
+                className="md:h-[14px] md:w-[14px]"
               >
                 <line x1="12" y1="19" x2="12" y2="5" />
                 <polyline points="5 12 12 5 19 12" />
               </svg>
             </button>
           </div>
-          <p className="text-label mt-2 hidden text-center text-[var(--os-text-muted)] md:block">
+          {showCharCounter ? (
+            <p
+              className={`text-label mt-1.5 text-right text-[11px] ${
+                isAtCharLimit ? "text-[#c62828] dark:text-[#ef5350]" : "text-[var(--os-text-muted)]"
+              }`}
+            >
+              {draft.length} / {MAX_INPUT_LENGTH}
+            </p>
+          ) : null}
+          <p className="text-label mt-1.5 hidden text-center text-[var(--os-text-muted)] md:block">
             Enter to send, Shift + Enter for new line
           </p>
         </div>

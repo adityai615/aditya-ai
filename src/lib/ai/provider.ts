@@ -7,7 +7,7 @@ export type AIProviderName = "gemini" | "claude" | "openai" | "openrouter";
 const ACTIVE_PROVIDER: AIProviderName = "gemini";
 
 const FALLBACK_SCOPE_MESSAGE =
-  "I am focused on Aditya's portfolio, projects, experience, and related details. Please ask about those topics.";
+  "I'm just here to talk about Aditya's work — ask me about his projects, skills, or whether he's available to hire!";
 
 function getPortfolioKeywords() {
   const skillKeywords = portfolioContext.skills.flatMap((group) => group.items);

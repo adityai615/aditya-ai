@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { generateAIResponse, type VisitorContextPayload } from "@/lib/ai/provider";
 
+const MAX_MESSAGE_LENGTH = 2000;
+
 type ChatRequestBody = {
   message?: string;
   visitor?: unknown;
@@ -39,6 +41,13 @@ export async function POST(request: Request) {
   if (!message) {
     return NextResponse.json(
       { error: "`message` is required and must be a non-empty string" },
+      { status: 400 },
+    );
+  }
+
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return NextResponse.json(
+      { error: `Message must be at most ${MAX_MESSAGE_LENGTH} characters` },
       { status: 400 },
     );
   }
