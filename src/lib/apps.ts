@@ -6,6 +6,12 @@ export const APP_DEFINITIONS = [
     aliases: ["ai", "assistant", "agent", "adityaai", "chat"],
   },
   {
+    id: "github",
+    title: "GitHub",
+    paletteIcon: "🐙",
+    aliases: ["github", "gh", "repos", "repositories"],
+  },
+  {
     id: "projects",
     title: "Projects",
     paletteIcon: "📁",
@@ -22,12 +28,6 @@ export const APP_DEFINITIONS = [
     title: "About",
     paletteIcon: "👤",
     aliases: ["about", "bio", "profile"],
-  },
-  {
-    id: "github",
-    title: "GitHub",
-    paletteIcon: "🐙",
-    aliases: ["github", "gh", "repos", "repositories"],
   },
   {
     id: "activity-monitor",
@@ -54,16 +54,16 @@ export const APP_DEFINITIONS = [
     aliases: ["calculator", "calc"],
   },
   {
-    id: "settings",
-    title: "Settings",
-    paletteIcon: "⚙️",
-    aliases: ["settings", "preferences", "theme"],
-  },
-  {
     id: "top-songs",
     title: "Spotify",
     paletteIcon: "🎵",
     aliases: ["top songs", "spotify", "music", "chart", "top 50", "india"],
+  },  
+  {
+    id: "settings",
+    title: "Settings",
+    paletteIcon: "⚙️",
+    aliases: ["settings", "preferences", "theme"],
   },
 
 ] as const;
