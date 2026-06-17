@@ -1,18 +1,38 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Briefcase, ChevronDown, Code2, Layers, UserCheck } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { publishAgentSession } from "@/lib/agent-session";
+import {
+  CHAT_MODEL_LABELS,
+  CHAT_MODEL_PROVIDERS,
+  CHAT_MODEL_STORAGE_KEY,
+  parseChatModelProvider,
+  type ChatModelProvider,
+} from "@/lib/ai/models";
 import { detectVisitorClient, type VisitorClientInfo } from "@/lib/visitor-client";
 
 const suggestions = [
-  "How did he build Luminare Voice Labs?",
-  "What freelance work has he delivered?",
-  "What's his tech stack?",
-  "Can I hire him?",
-];
+  {
+    label: "How did he build Luminare Voice Labs?",
+    icon: Code2,
+  },
+  {
+    label: "What freelance work has he delivered?",
+    icon: Briefcase,
+  },
+  {
+    label: "What's his tech stack?",
+    icon: Layers,
+  },
+  {
+    label: "Can I hire him?",
+    icon: UserCheck,
+  },
+] as const;
 
 const MAX_INPUT_LENGTH = 2000;
 const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
@@ -128,12 +148,93 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
+function ModelProviderSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: ChatModelProvider;
+  onChange: (provider: ChatModelProvider) => void;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative shrink-0 self-end">
+      <button
+        type="button"
+        onClick={() => setOpen((previous) => !previous)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Select AI model provider"
+        className="agent-model-select text-ui flex h-7 min-w-[4.75rem] items-center justify-between gap-1 rounded-full px-2.5 text-[11px] text-[var(--os-text-muted)] transition-colors duration-150 hover:text-[var(--os-text)] disabled:cursor-not-allowed disabled:opacity-65 md:h-8 md:min-w-[5.25rem] md:px-3 md:text-[12px]"
+      >
+        <span className="truncate">{CHAT_MODEL_LABELS[value]}</span>
+        <ChevronDown
+          size={12}
+          strokeWidth={2}
+          aria-hidden="true"
+          className={`shrink-0 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open ? (
+        <ul
+          role="listbox"
+          aria-label="AI model providers"
+          className="agent-model-menu absolute right-0 bottom-[calc(100%+6px)] z-50 min-w-[7.5rem] overflow-hidden rounded-xl bg-[var(--os-surface)] py-1"
+        >
+          {CHAT_MODEL_PROVIDERS.map((provider) => {
+            const isSelected = provider === value;
+            return (
+              <li key={provider} role="option" aria-selected={isSelected}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(provider);
+                    setOpen(false);
+                  }}
+                  className={`text-ui w-full px-3 py-2 text-left text-[12px] transition-colors duration-150 ${
+                    isSelected
+                      ? "bg-[var(--os-hover)] text-[var(--os-text)]"
+                      : "text-[var(--os-text-muted)] hover:bg-[var(--os-hover)] hover:text-[var(--os-text)]"
+                  }`}
+                >
+                  {CHAT_MODEL_LABELS[provider]}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function AgentWindow() {
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [hasRoasted, setHasRoasted] = useState(false);
+  const [chatProvider, setChatProvider] = useState<ChatModelProvider>("gemini");
   const visitorInfoRef = useRef<VisitorClientInfo | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -165,6 +266,26 @@ export function AgentWindow() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CHAT_MODEL_STORAGE_KEY);
+      if (stored) {
+        setChatProvider(parseChatModelProvider(stored));
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const handleProviderChange = (provider: ChatModelProvider) => {
+    setChatProvider(provider);
+    try {
+      localStorage.setItem(CHAT_MODEL_STORAGE_KEY, provider);
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   useLayoutEffect(() => {
     publishAgentSession({
@@ -232,6 +353,7 @@ export function AgentWindow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: trimmed,
+          provider: chatProvider,
           visitor: {
             browser: visitor.browser,
             os: visitor.os,
@@ -349,6 +471,34 @@ export function AgentWindow() {
         .agent-composer-input::-webkit-scrollbar {
           display: none;
         }
+        .agent-suggestion-chip {
+          background: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)),
+            var(--os-surface);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 1px 2px rgba(0, 0, 0, 0.12);
+          transition:
+            background 150ms ease,
+            box-shadow 150ms ease,
+            transform 150ms ease;
+        }
+        .agent-suggestion-chip:hover:not(:disabled) {
+          background: linear-gradient(rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.09)),
+            var(--os-hover);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.18);
+          transform: translateY(-1px);
+        }
+        .agent-suggestion-chip:active:not(:disabled) {
+          transform: translateY(0);
+        }
+        .agent-model-select {
+          background: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+            var(--os-background);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+        }
+        .agent-model-menu {
+          box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+            0 4px 16px rgba(0, 0, 0, 0.22);
+        }
         @media (max-width: 767px) {
           .agent-scroll {
             padding-bottom: calc(
@@ -381,18 +531,24 @@ export function AgentWindow() {
                 or whether he&apos;s available to hire - I know it all.
               </p>
             </div>
-            <div className="flex w-full max-w-[620px] flex-col gap-1.5 max-md:items-stretch md:mt-1 md:flex-row md:flex-wrap md:justify-center md:gap-2.5">
-              {suggestions.map((question) => (
-                <button
-                  key={question}
-                  type="button"
-                  onClick={() => sendMessage(question)}
-                  disabled={isLoading}
-                  className="text-ui min-h-11 rounded-2xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-3.5 py-2.5 text-left text-[12.5px] text-[var(--os-text)] transition-colors duration-150 hover:bg-[var(--os-hover)] disabled:cursor-not-allowed disabled:opacity-65 md:rounded-full md:text-center md:text-[13px]"
-                >
-                  {question}
-                </button>
-              ))}
+            <div className="flex w-full max-w-[620px] flex-col gap-2 max-md:items-stretch md:mt-1 md:flex-row md:flex-wrap md:justify-center md:gap-2.5">
+              {suggestions.map((suggestion) => {
+                const Icon = suggestion.icon;
+                return (
+                  <button
+                    key={suggestion.label}
+                    type="button"
+                    onClick={() => sendMessage(suggestion.label)}
+                    disabled={isLoading}
+                    className="agent-suggestion-chip text-ui group flex min-h-11 items-center gap-2.5 rounded-2xl px-4 py-2.5 text-left text-[12.5px] text-[var(--os-text)] disabled:cursor-not-allowed disabled:opacity-65 md:justify-center md:rounded-full md:px-5 md:text-center md:text-[13px]"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--os-background)]/60 text-[var(--os-text-muted)] transition-colors duration-150 group-hover:text-[var(--os-text)] md:h-6 md:w-6">
+                      <Icon size={14} strokeWidth={1.75} aria-hidden="true" />
+                    </span>
+                    <span className="leading-snug">{suggestion.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -410,7 +566,7 @@ export function AgentWindow() {
       <section className="agent-composer relative shrink-0 bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5">
         <div className="agent-composer-fade" aria-hidden="true" />
         <div className="mx-auto w-full max-w-[860px]">
-          <div className="agent-composer-pill flex items-end gap-2 rounded-2xl bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:px-3.5 sm:py-2 md:px-4 md:py-2.5">
+          <div className="agent-composer-pill flex items-end gap-1.5 rounded-2xl bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:gap-2 sm:px-3.5 sm:py-2 md:px-4 md:py-2.5">
             <textarea
               ref={textareaRef}
               value={draft}
@@ -427,6 +583,11 @@ export function AgentWindow() {
               placeholder="Ask anything about Aditya..."
               rows={1}
               className="agent-composer-input text-ui min-h-5 max-h-32 w-full flex-1 resize-none bg-transparent py-1 leading-5 text-[var(--os-text)] outline-none placeholder:text-[var(--os-text-muted)] sm:max-h-40 md:min-h-6 md:py-1.5 md:text-[14px] md:leading-[1.45]"
+            />
+            <ModelProviderSelect
+              value={chatProvider}
+              onChange={handleProviderChange}
+              disabled={isLoading}
             />
             <button
               type="button"

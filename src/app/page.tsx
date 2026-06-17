@@ -35,7 +35,7 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
     x: 140,
     y: 60,
     zIndex: 10,
-    isOpen: true,
+    isOpen: false,
     isMinimized: false,
     isMaximized: false,
   },

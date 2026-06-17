@@ -1,10 +1,10 @@
 import { generateWithGemini } from "@/lib/ai/gemini";
+import { generateWithGroq } from "@/lib/ai/groq";
+import { type ChatModelProvider, parseChatModelProvider } from "@/lib/ai/models";
 import { buildSystemPrompt, type BuildSystemPromptOptions } from "@/lib/ai/systemPrompt";
 import { portfolioContext } from "@/lib/portfolio-context";
 
-export type AIProviderName = "gemini" | "claude" | "openai" | "openrouter";
-
-const ACTIVE_PROVIDER: AIProviderName = "gemini";
+export type { ChatModelProvider } from "@/lib/ai/models";
 
 const FALLBACK_SCOPE_MESSAGE =
   "I'm just here to talk about Aditya's work — ask me about his projects, skills, or whether he's available to hire!";
@@ -23,6 +23,39 @@ function getPortfolioKeywords() {
     ...item.highlights,
   ]);
 
+  const intentKeywords = [
+    "hire",
+    "hiring",
+    "hired",
+    "available",
+    "availability",
+    "collaborate",
+    "collaboration",
+    "opportunity",
+    "recruit",
+    "recruiter",
+    "role",
+    "position",
+    "budget",
+    "team",
+    "client",
+    "stack",
+    "college",
+    "university",
+    "degree",
+    "email",
+    "linkedin",
+    "reach out",
+    "work with",
+    "work on",
+    "looking for",
+    "developer",
+    "build",
+    "built",
+    "deliver",
+    "delivered",
+  ];
+
   return new Set(
     [
       "aditya",
@@ -37,6 +70,7 @@ function getPortfolioKeywords() {
       "contact",
       "freelance",
       "freelancer",
+      ...intentKeywords,
       ...skillKeywords,
       ...projectKeywords,
       ...experienceKeywords,
@@ -51,14 +85,67 @@ function getPortfolioKeywords() {
 
 const portfolioKeywords = getPortfolioKeywords();
 
-function isPortfolioQuestion(message: string) {
-  const normalized = message.toLowerCase();
-  if (!normalized.trim()) {
+const ADITYA_REFERENCE_PATTERN = /\b(him|his|he'?s|he'?d|he)\b/i;
+
+function normalizeSocialMessage(message: string) {
+  return message
+    .toLowerCase()
+    .trim()
+    .replace(/[!?.]+$/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function isGreetingOrSocialMessage(message: string) {
+  const normalized = normalizeSocialMessage(message);
+  if (!normalized) {
     return false;
   }
 
-  const greetings = ["hi", "hello", "hey", "namaste"];
-  if (greetings.some((greeting) => normalized === greeting)) {
+  const greetingPatterns = [
+    /^(hi+|hello+|hey+|hola|namaste|yo|sup|howdy)$/,
+    /^good\s+(morning|afternoon|evening|night)$/,
+    /^what'?s\s+up$/,
+    /^(hi|hello|hey)\s+there$/,
+  ];
+
+  const thanksPatterns = [
+    /^thanks?$/,
+    /^thank\s+you$/,
+    /^thank\s+you\s+so\s+much$/,
+    /^thanks?\s+a\s+lot$/,
+    /^thx$/,
+    /^ty$/,
+    /^appreciate\s+it$/,
+    /^cheers$/,
+    /^much\s+appreciated$/,
+  ];
+
+  const farewellPatterns = [
+    /^bye+$/,
+    /^goodbye$/,
+    /^see\s+(ya|you)(\s+later)?$/,
+    /^cya$/,
+    /^take\s+care$/,
+  ];
+
+  return (
+    greetingPatterns.some((pattern) => pattern.test(normalized)) ||
+    thanksPatterns.some((pattern) => pattern.test(normalized)) ||
+    farewellPatterns.some((pattern) => pattern.test(normalized))
+  );
+}
+
+function isPortfolioQuestion(message: string) {
+  const normalized = message.toLowerCase().trim();
+  if (!normalized) {
+    return false;
+  }
+
+  if (isGreetingOrSocialMessage(message)) {
+    return true;
+  }
+
+  if (ADITYA_REFERENCE_PATTERN.test(message)) {
     return true;
   }
 
@@ -71,6 +158,28 @@ function isPortfolioQuestion(message: string) {
   return false;
 }
 
+function isProviderConfigured(provider: ChatModelProvider) {
+  if (provider === "gemini") {
+    return Boolean(process.env.GEMINI_API_KEY?.trim());
+  }
+  return Boolean(process.env.GROQ_API_KEY?.trim());
+}
+
+function getFallbackProvider(provider: ChatModelProvider): ChatModelProvider {
+  return provider === "gemini" ? "groq" : "gemini";
+}
+
+async function generateWithProvider(
+  provider: ChatModelProvider,
+  message: string,
+  systemPrompt: string,
+) {
+  if (provider === "groq") {
+    return generateWithGroq({ message, systemPrompt });
+  }
+  return generateWithGemini({ message, systemPrompt });
+}
+
 export type VisitorContextPayload = {
   browser: string;
   os: string;
@@ -79,6 +188,7 @@ export type VisitorContextPayload = {
 
 type GenerateResponseInput = {
   message: string;
+  provider?: unknown;
   visitor?: VisitorContextPayload;
   /** When true, system prompt includes first-message-only browser/OS roast guidance. */
   isFirstMessageInConversation?: boolean;
@@ -90,29 +200,42 @@ export type GenerateAIResponseResult = {
   consumeFirstMessageRoast: boolean;
 };
 
-async function runActiveProvider(
+async function runWithProviderFallback(
+  preferredProvider: ChatModelProvider,
   message: string,
   systemPromptOptions?: BuildSystemPromptOptions,
 ) {
   const systemPrompt = buildSystemPrompt(systemPromptOptions);
+  const fallbackProvider = getFallbackProvider(preferredProvider);
+  const attemptOrder = [preferredProvider, fallbackProvider].filter(
+    (provider, index, list) => isProviderConfigured(provider) && list.indexOf(provider) === index,
+  );
 
-  switch (ACTIVE_PROVIDER) {
-    case "gemini":
-      return generateWithGemini({ message, systemPrompt });
-    case "claude":
-    case "openai":
-    case "openrouter":
-      throw new Error(`${ACTIVE_PROVIDER} provider is not implemented yet`);
-    default:
-      throw new Error("Unsupported AI provider");
+  if (attemptOrder.length === 0) {
+    throw new Error("No AI providers are configured");
   }
+
+  let lastError: unknown;
+
+  for (const provider of attemptOrder) {
+    try {
+      return await generateWithProvider(provider, message, systemPrompt);
+    } catch (error) {
+      lastError = error;
+      console.error(`[chat] ${provider} provider failed:`, error);
+    }
+  }
+
+  throw lastError ?? new Error("All AI providers failed");
 }
 
 export async function generateAIResponse({
   message,
+  provider,
   visitor,
   isFirstMessageInConversation,
 }: GenerateResponseInput): Promise<GenerateAIResponseResult> {
+  const preferredProvider = parseChatModelProvider(provider);
   const visitorInfoLine = visitor
     ? `Browser=${visitor.browser}, OS=${visitor.os}, ScreenWidth=${visitor.screenWidth}px`
     : undefined;
@@ -130,7 +253,11 @@ export async function generateAIResponse({
   }
 
   try {
-    const response = await runActiveProvider(message, systemPromptOptions);
+    const response = await runWithProviderFallback(
+      preferredProvider,
+      message,
+      systemPromptOptions,
+    );
     return {
       response,
       consumeFirstMessageRoast: includeFirstMessageRoastInstructions,

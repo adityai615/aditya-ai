@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { generateAIResponse, type VisitorContextPayload } from "@/lib/ai/provider";
+import { parseChatModelProvider } from "@/lib/ai/models";
 
 const MAX_MESSAGE_LENGTH = 2000;
 
 type ChatRequestBody = {
   message?: string;
+  provider?: unknown;
   visitor?: unknown;
   isFirstMessageInConversation?: unknown;
 };
@@ -54,9 +56,11 @@ export async function POST(request: Request) {
 
   const visitor = parseVisitorPayload(body.visitor);
   const isFirstMessageInConversation = body.isFirstMessageInConversation === true;
+  const provider = parseChatModelProvider(body.provider);
 
   const result = await generateAIResponse({
     message,
+    provider,
     visitor,
     isFirstMessageInConversation,
   });
