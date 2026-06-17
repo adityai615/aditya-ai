@@ -535,7 +535,7 @@ export function AgentWindow() {
             <Avatar size="lg" />
             <div>
               <p className="text-ui text-[14px] font-medium text-[var(--os-text)] md:text-[15px]">
-                Hey! I&apos;m Aditya&apos;s AI assistant.
+                Hey! I&apos;m Aditya&apos;s Assistant.
               </p>
               <p className="text-ui mx-auto mt-1.5 max-w-[380px] text-[12px] leading-[1.55] text-[var(--os-text-muted)] md:mt-3 md:text-[13px]">
                 Ask me about his projects, freelance work, tech stack,

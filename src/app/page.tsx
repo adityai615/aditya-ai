@@ -9,7 +9,7 @@ import { TopBar } from "../components/os/TopBar";
 import type { WallpaperMeta, WindowType } from "../components/os/types";
 
 const windowTitles: Record<WindowType, string> = {
-  agent: "Aditya's AI Assistant",
+  agent: "Aditya's Assistant",
   uptime: "uptime.sys",
   "top-songs": "Top 50 — India",
   ...Object.fromEntries(

@@ -2,7 +2,7 @@ export type MetricKey = "cpu" | "memory" | "network" | "aiUsage";
 
 export type ActivityMetrics = Record<MetricKey, number>;
 
-export type ProcessStatus = "Running" | "Idle" | "Sleeping" | "Overthinking" | "Critical Dependency" | "Thinking";
+export type ProcessStatus = "Running" | "Idle" | "Sleeping" | "Overthinking" | "Thinking";
 
 export type ActivityProcessRow = {
   id: string;
@@ -68,14 +68,6 @@ const PROCESS_DEFINITIONS: ProcessDefinition[] = [
     max: 100,
     maxStep: 2,
     getStatus: () => "Overthinking",
-  },
-  {
-    id: "coffee",
-    name: "Coffee.dll",
-    min: 100,
-    max: 100,
-    maxStep: 0,
-    getStatus: () => "Critical Dependency",
   },
   {
     id: "resume-viewer",

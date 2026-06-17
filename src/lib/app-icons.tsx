@@ -5,7 +5,7 @@ import {
   Calculator,
   FileText,
   FolderKanban,
-  Settings,
+  Wallpaper,
   Terminal,
   User,
 } from "lucide-react";
@@ -88,7 +88,7 @@ export const APP_ICONS: Record<WindowType, AppIconComponent> = {
   about: User,
   resume: FileText,
   calculator: Calculator,
-  settings: Settings,
+  settings: Wallpaper,
   github: GitHubIcon,
   uptime: Activity,
   "top-songs": MusicIcon,

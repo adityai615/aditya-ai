@@ -1,7 +1,7 @@
 export const APP_DEFINITIONS = [
   {
     id: "agent",
-    title: "Agent",
+    title: "AadiAI",
     paletteIcon: "🤖",
     aliases: ["ai", "assistant", "agent", "adityaai", "chat"],
   },
@@ -61,9 +61,9 @@ export const APP_DEFINITIONS = [
   },  
   {
     id: "settings",
-    title: "Settings",
-    paletteIcon: "⚙️",
-    aliases: ["settings", "preferences", "theme"],
+    title: "Themes",
+    paletteIcon: "🎨",
+    aliases: ["themes", "theme", "settings", "preferences"],
   },
 
 ] as const;

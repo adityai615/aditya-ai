@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import type { WindowType } from "./types";
 import { APP_DEFINITIONS } from "@/lib/apps";
 import { APP_ICONS } from "@/lib/app-icons";
@@ -12,42 +11,17 @@ export function DesktopIcons({
   activeWindow,
   onSelect,
 }: DesktopIconsProps) {
-  const [selectedIcon, setSelectedIcon] = useState<WindowType>(activeWindow);
-  const lastTapRef = useRef<{ appId: WindowType; time: number } | null>(null);
-
-  useEffect(() => {
-    setSelectedIcon(activeWindow);
-  }, [activeWindow]);
-
-  const handleIconPress = (appId: WindowType) => {
-    const now = Date.now();
-    const lastTap = lastTapRef.current;
-    const isDoubleTap = Boolean(
-      lastTap && lastTap.appId === appId && now - lastTap.time <= 320,
-    );
-
-    setSelectedIcon(appId);
-
-    if (isDoubleTap) {
-      onSelect(appId);
-      lastTapRef.current = null;
-      return;
-    }
-
-    lastTapRef.current = { appId, time: now };
-  };
-
   return (
     <nav className="grid h-full grid-cols-2 content-start gap-x-3 gap-y-4">
       {APP_DEFINITIONS.map((app) => {
         const Icon = APP_ICONS[app.id];
-        const isActive = selectedIcon === app.id;
+        const isActive = activeWindow === app.id;
 
         return (
           <button
             key={app.id}
             type="button"
-            onClick={() => handleIconPress(app.id)}
+            onClick={() => onSelect(app.id)}
             className={`flex w-[64px] shrink-0 flex-col items-center gap-1.5 rounded-[10px] border p-2 text-center transition-colors duration-150 ${
               isActive
                 ? "border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.15)]"
