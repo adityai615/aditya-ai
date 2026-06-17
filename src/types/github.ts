@@ -37,6 +37,12 @@ export type GitHubDashboardRepo = {
   updatedAt: string;
 };
 
+export type GitHubLanguageStat = {
+  language: string;
+  count: number;
+  percentage: number;
+};
+
 export type GitHubDashboardData = {
   profile: {
     avatarUrl: string;
@@ -50,6 +56,9 @@ export type GitHubDashboardData = {
   stats: GitHubStatCard[];
   mostUsedLanguage: string;
   totalStars: number;
+  languageBreakdown: GitHubLanguageStat[];
+  featuredRepository: GitHubDashboardRepo | null;
+  recentlyUpdatedRepository: GitHubDashboardRepo | null;
   topRepositories: GitHubDashboardRepo[];
 };
 

@@ -1,9 +1,9 @@
 export const APP_DEFINITIONS = [
   {
     id: "agent",
-    title: "AdityaAI",
+    title: "Agent",
     paletteIcon: "🤖",
-    aliases: ["ai", "assistant", "agent"],
+    aliases: ["ai", "assistant", "agent", "adityaai", "chat"],
   },
   {
     id: "projects",
@@ -31,9 +31,15 @@ export const APP_DEFINITIONS = [
   },
   {
     id: "activity-monitor",
-    title: "Activity Monitor",
+    title: "Monitor",
     paletteIcon: "📊",
     aliases: ["activity", "monitor", "activity monitor", "stats", "performance"],
+  },
+  {
+    id: "uptime",
+    title: "Uptime",
+    paletteIcon: "⏱️",
+    aliases: ["uptime", "boot", "running", "since"],
   },
   {
     id: "resume",
@@ -43,7 +49,7 @@ export const APP_DEFINITIONS = [
   },
   {
     id: "calculator",
-    title: "Calculator",
+    title: "Calc",
     paletteIcon: "🧮",
     aliases: ["calculator", "calc"],
   },
@@ -52,6 +58,12 @@ export const APP_DEFINITIONS = [
     title: "Settings",
     paletteIcon: "⚙️",
     aliases: ["settings", "preferences", "theme"],
+  },
+  {
+    id: "top-songs",
+    title: "Spotify",
+    paletteIcon: "🎵",
+    aliases: ["top songs", "spotify", "music", "chart", "top 50", "india"],
   },
 
 ] as const;

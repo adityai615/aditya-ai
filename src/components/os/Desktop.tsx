@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
+import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { DesktopIcons } from "./DesktopIcons";
+import { MobileHome } from "./MobileHome";
+import { MobileTabBar } from "./MobileTabBar";
 import type { WindowType } from "./types";
 import { WindowRenderer } from "../windows/WindowRenderer";
 import type { WallpaperMeta } from "./types";
 import { Window } from "./Window";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type DesktopProps = {
   wallpaper: string;
   activeWindow: WindowType;
+  mobileHomeActive: boolean;
   windowTitles: Record<WindowType, string>;
   windows: Record<
     WindowType,
@@ -36,6 +39,7 @@ type DesktopProps = {
 export function Desktop({
   wallpaper,
   activeWindow,
+  mobileHomeActive,
   windowTitles,
   windows,
   wallpapers,
@@ -67,8 +71,15 @@ export function Desktop({
 
     if (windowType === "calculator") {
       return {
-        width: Math.min(460, maxWidth),
-        height: Math.min(760, maxHeight),
+        width: Math.min(360, maxWidth),
+        height: Math.min(540, maxHeight),
+      };
+    }
+
+    if (windowType === "uptime") {
+      return {
+        width: Math.min(380, maxWidth),
+        height: Math.min(300, maxHeight),
       };
     }
 
@@ -213,27 +224,62 @@ export function Desktop({
     >
       <div className="mx-auto h-full min-h-0 w-full">
         <div className="flex h-full min-h-0 flex-col md:flex-row">
-          <aside
-            className={`relative shrink-0 rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(0,0,0,0.35)] p-2 backdrop-blur-[20px] backdrop-saturate-[180%] transition-all duration-200 md:h-full md:border-y-0 md:border-l-0 md:border-r md:rounded-none md:bg-[rgba(0,0,0,0.35)] ${
+          <div
+            className={`relative z-30 hidden shrink-0 transition-[width] duration-300 ease-out md:block md:h-full ${
               isSidebarCollapsed ? "md:w-[48px]" : "md:w-auto"
             }`}
           >
+            <aside
+              className={`h-full rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(0,0,0,0.35)] p-2 backdrop-blur-[20px] backdrop-saturate-[180%] transition-all duration-300 ease-out md:border-y-0 md:border-l-0 md:border-r md:border-r-[rgba(255,255,255,0.06)] md:rounded-none md:bg-[rgba(0,0,0,0.35)] ${
+                isSidebarCollapsed ? "md:px-1" : "md:pr-4"
+              }`}
+            >
+              <div className={isSidebarCollapsed ? "md:hidden" : ""}>
+                <DesktopIcons activeWindow={activeWindow} onSelect={onSelectWindow} />
+              </div>
+            </aside>
+
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((previous) => !previous)}
-              className="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 translate-x-1/2 rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.4)] p-1 text-[rgba(255,255,255,0.82)] transition-colors hover:bg-[rgba(255,255,255,0.1)] md:inline-flex"
+              className="group/toggle absolute top-1/2 right-0 z-50 hidden h-11 w-[22px] -translate-y-1/2 translate-x-1/2 cursor-pointer select-none flex-col items-center justify-center gap-0.5 rounded-full border border-[rgba(255,255,255,0.14)] bg-[linear-gradient(180deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.04)_100%)] text-[rgba(255,255,255,0.72)] shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-xl transition-all duration-200 ease-out hover:w-[24px] hover:border-[rgba(255,255,255,0.28)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0.08)_100%)] hover:text-white hover:shadow-[0_6px_24px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] active:scale-[0.97] md:flex"
               aria-label={isSidebarCollapsed ? "Show desktop sidebar" : "Hide desktop sidebar"}
               title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
             >
-              {isSidebarCollapsed ? <ChevronsRight size={14} /> : <ChevronsLeft size={14} />}
+              <span
+                className="pointer-events-none h-px w-2 rounded-full bg-white/25 transition-colors group-hover/toggle:bg-white/40"
+                aria-hidden="true"
+              />
+              {isSidebarCollapsed ? (
+                <ChevronRight
+                  size={13}
+                  strokeWidth={2.25}
+                  className="pointer-events-none transition-transform duration-200 group-hover/toggle:translate-x-px"
+                />
+              ) : (
+                <ChevronLeft
+                  size={13}
+                  strokeWidth={2.25}
+                  className="pointer-events-none transition-transform duration-200 group-hover/toggle:-translate-x-px"
+                />
+              )}
+              <span
+                className="pointer-events-none h-px w-2 rounded-full bg-white/25 transition-colors group-hover/toggle:bg-white/40"
+                aria-hidden="true"
+              />
             </button>
+          </div>
 
-            <div className={isSidebarCollapsed ? "md:hidden" : ""}>
-              <DesktopIcons activeWindow={activeWindow} onSelect={onSelectWindow} />
-            </div>
-          </aside>
+          <div
+            ref={windowAreaRef}
+            className="relative min-h-0 flex-1 overflow-hidden max-md:pb-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]"
+          >
+            {mobileHomeActive ? (
+              <div className="absolute inset-0 max-md:mobile-app-fade-in md:hidden">
+                <MobileHome onOpenApp={onSelectWindow} />
+              </div>
+            ) : null}
 
-          <div ref={windowAreaRef} className="relative min-h-0 flex-1 overflow-hidden">
             {(() => {
               return (Object.keys(windows ?? {}) as WindowType[])
                 .filter((windowType) => {
@@ -246,24 +292,40 @@ export function Desktop({
                     return null;
                   }
 
-                  const isCompact = windowType === "calculator";
+                  const isMobileActive = !mobileHomeActive && windowType === activeWindow;
+                  const isCompact = windowType === "calculator" || windowType === "uptime";
                   const dimensions =
                     windowAreaSize.width > 0 && windowAreaSize.height > 0
                       ? getWindowSize(windowType, windowAreaSize.width, windowAreaSize.height)
                       : null;
                   const wrapperClassName = windowState.isMaximized
-                    ? "absolute inset-0"
-                    : "absolute min-h-0";
+                    ? "absolute inset-0 max-md:inset-0"
+                    : "absolute min-h-0 max-md:inset-0 max-md:h-full max-md:w-full";
                   const clampedPosition = clampPosition(
                     windowType,
                     windowState.x,
                     windowState.y,
                   );
 
+                  const windowTitle: ReactNode =
+                    windowType === "agent" ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span>{windowTitles[windowType]}</span>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4ade80]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+                          live
+                        </span>
+                      </span>
+                    ) : (
+                      windowTitles[windowType]
+                    );
+
                   return (
                     <div
                       key={windowType}
-                      className={wrapperClassName}
+                      className={`${wrapperClassName} ${
+                        isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
+                      } max-md:!inset-0 max-md:!h-full max-md:!w-full max-md:!left-0 max-md:!top-0`}
                       ref={(node) => {
                         windowWrapperRefs.current[windowType] = node;
                       }}
@@ -280,7 +342,7 @@ export function Desktop({
                       }
                     >
                       <Window
-                        title={windowTitles[windowType]}
+                        title={windowTitle}
                         isCompact={isCompact && !windowState.isMaximized}
                         isMaximized={windowState.isMaximized}
                         zIndex={windowState.zIndex}
@@ -304,6 +366,11 @@ export function Desktop({
           </div>
         </div>
       </div>
+
+      <MobileTabBar
+        activeWindow={mobileHomeActive ? null : activeWindow}
+        onSelect={onSelectWindow}
+      />
     </section>
   );
 }

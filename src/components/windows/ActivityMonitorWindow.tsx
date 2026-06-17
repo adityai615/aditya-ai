@@ -137,7 +137,7 @@ export function ActivityMonitorWindow() {
               {systemHealth}
             </p>
 
-            <p className="text-label mt-6 text-[var(--os-text-muted)]">Aadi OS Uptime</p>
+            <p className="text-label mt-6 text-[var(--os-text-muted)]">Aditya OS Uptime</p>
             <p className="text-ui mt-2 text-[20px] font-semibold text-[var(--os-text)]">
               {formatUptime(uptimeSeconds)}
             </p>

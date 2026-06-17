@@ -36,38 +36,61 @@ function getMostUsedLanguage(repositories: GitHubRepo[]) {
   return topLanguage?.[0] ?? "Not specified";
 }
 
-function toRepoLanguageInput(repositories: GitHubDashboardData["topRepositories"]): GitHubRepo[] {
-  return repositories.map((repository) => ({
+function getLanguageBreakdown(repositories: GitHubRepo[]) {
+  const languageFrequency = new Map<string, number>();
+
+  repositories.forEach((repository) => {
+    if (!repository.language) return;
+    languageFrequency.set(
+      repository.language,
+      (languageFrequency.get(repository.language) ?? 0) + 1,
+    );
+  });
+
+  const total = [...languageFrequency.values()].reduce((sum, count) => sum + count, 0);
+  if (total === 0) return [];
+
+  return [...languageFrequency.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([language, count]) => ({
+      language,
+      count,
+      percentage: Math.round((count / total) * 100),
+    }));
+}
+
+function mapRepository(repository: GitHubRepo): GitHubDashboardData["topRepositories"][number] {
+  return {
     id: repository.id,
     name: repository.name,
-    html_url: repository.url,
-    description: repository.description,
-    language: repository.language === "Not specified" ? null : repository.language,
-    stargazers_count: repository.stars,
-    updated_at: repository.updatedAt,
-    fork: false,
-  }));
+    url: repository.html_url,
+    description: repository.description ?? "No description provided.",
+    language: repository.language ?? "Not specified",
+    stars: repository.stargazers_count,
+    updatedAt: repository.updated_at,
+  };
 }
 
 export function buildGitHubDashboardData(
   profile: GitHubProfile,
   repositories: GitHubRepo[],
 ): GitHubDashboardData {
-  const topRepositories = repositories
-    .filter((repository) => !repository.fork)
-    .sort((a, b) => b.stargazers_count - a.stargazers_count)
-    .slice(0, TOP_REPO_LIMIT)
-    .map((repository) => ({
-      id: repository.id,
-      name: repository.name,
-      url: repository.html_url,
-      description: repository.description ?? "No description provided.",
-      language: repository.language ?? "Not specified",
-      stars: repository.stargazers_count,
-      updatedAt: repository.updated_at,
-    }));
+  const nonForkRepositories = repositories.filter((repository) => !repository.fork);
+  const mappedRepositories = nonForkRepositories.map(mapRepository);
 
-  const totalStars = topRepositories.reduce((sum, repository) => sum + repository.stars, 0);
+  const topRepositories = [...mappedRepositories]
+    .sort((a, b) => b.stars - a.stars)
+    .slice(0, TOP_REPO_LIMIT);
+
+  const recentlyUpdatedRepository = [...mappedRepositories].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  )[0] ?? null;
+
+  const totalStars = nonForkRepositories.reduce(
+    (sum, repository) => sum + repository.stargazers_count,
+    0,
+  );
 
   return {
     profile: {
@@ -85,10 +108,11 @@ export function buildGitHubDashboardData(
       { label: "Following", value: profile.following.toString() },
       { label: "Account Age", value: getAccountAge(profile.created_at) },
     ],
-    mostUsedLanguage: getMostUsedLanguage(
-      topRepositories.length > 0 ? toRepoLanguageInput(topRepositories) : repositories,
-    ),
+    mostUsedLanguage: getMostUsedLanguage(nonForkRepositories),
     totalStars,
+    languageBreakdown: getLanguageBreakdown(nonForkRepositories),
+    featuredRepository: topRepositories[0] ?? null,
+    recentlyUpdatedRepository,
     topRepositories,
   };
 }

@@ -1,5 +1,5 @@
 import { generateWithGemini } from "@/lib/ai/gemini";
-import { buildSystemPrompt } from "@/lib/ai/systemPrompt";
+import { buildSystemPrompt, type BuildSystemPromptOptions } from "@/lib/ai/systemPrompt";
 import { portfolioContext } from "@/lib/portfolio-context";
 
 export type AIProviderName = "gemini" | "claude" | "openai" | "openrouter";
@@ -71,12 +71,30 @@ function isPortfolioQuestion(message: string) {
   return false;
 }
 
-type GenerateResponseInput = {
-  message: string;
+export type VisitorContextPayload = {
+  browser: string;
+  os: string;
+  screenWidth: number;
 };
 
-async function runActiveProvider(message: string) {
-  const systemPrompt = buildSystemPrompt();
+type GenerateResponseInput = {
+  message: string;
+  visitor?: VisitorContextPayload;
+  /** When true, system prompt includes first-message-only browser/OS roast guidance. */
+  isFirstMessageInConversation?: boolean;
+};
+
+export type GenerateAIResponseResult = {
+  response: string;
+  /** True when the model ran with first-message roast instructions (client should mark roast consumed). */
+  consumeFirstMessageRoast: boolean;
+};
+
+async function runActiveProvider(
+  message: string,
+  systemPromptOptions?: BuildSystemPromptOptions,
+) {
+  const systemPrompt = buildSystemPrompt(systemPromptOptions);
 
   switch (ACTIVE_PROVIDER) {
     case "gemini":
@@ -90,14 +108,38 @@ async function runActiveProvider(message: string) {
   }
 }
 
-export async function generateAIResponse({ message }: GenerateResponseInput) {
+export async function generateAIResponse({
+  message,
+  visitor,
+  isFirstMessageInConversation,
+}: GenerateResponseInput): Promise<GenerateAIResponseResult> {
+  const visitorInfoLine = visitor
+    ? `Browser=${visitor.browser}, OS=${visitor.os}, ScreenWidth=${visitor.screenWidth}px`
+    : undefined;
+
+  const includeFirstMessageRoastInstructions =
+    Boolean(isFirstMessageInConversation) && Boolean(visitorInfoLine);
+
+  const systemPromptOptions: BuildSystemPromptOptions = {
+    ...(visitorInfoLine ? { visitorInfoLine } : {}),
+    includeFirstMessageRoastInstructions,
+  };
+
   if (!isPortfolioQuestion(message)) {
-    return FALLBACK_SCOPE_MESSAGE;
+    return { response: FALLBACK_SCOPE_MESSAGE, consumeFirstMessageRoast: false };
   }
 
   try {
-    return await runActiveProvider(message);
+    const response = await runActiveProvider(message, systemPromptOptions);
+    return {
+      response,
+      consumeFirstMessageRoast: includeFirstMessageRoastInstructions,
+    };
   } catch {
-    return "I am having trouble answering right now. Please try again in a moment with a portfolio-related question.";
+    return {
+      response:
+        "I am having trouble answering right now. Please try again in a moment with a portfolio-related question.",
+      consumeFirstMessageRoast: false,
+    };
   }
 }

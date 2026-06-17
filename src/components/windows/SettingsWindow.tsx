@@ -23,7 +23,7 @@ export function SettingsWindow({
             appearance
           </p>
           <p className="text-ui mt-2 text-[var(--os-text-muted)]">
-            Customize the look and feel of Aadi OS.
+            Customize the look and feel of Aditya OS.
           </p>
         </header>
 

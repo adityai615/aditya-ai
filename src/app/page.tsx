@@ -4,16 +4,19 @@ import { useEffect, useState } from "react";
 import { APP_DEFINITIONS } from "@/lib/apps";
 import { CommandPalette } from "../components/os/CommandPalette";
 import { Desktop } from "../components/os/Desktop";
-import { Dock } from "../components/os/Dock";
+import { IdleNotification } from "../components/os/IdleNotification";
 import { TopBar } from "../components/os/TopBar";
 import type { WallpaperMeta, WindowType } from "../components/os/types";
 
 const windowTitles: Record<WindowType, string> = {
   agent: "Aditya's AI Assistant",
+  uptime: "uptime.sys",
+  "top-songs": "Top 50 — India",
   ...Object.fromEntries(
-    APP_DEFINITIONS.filter((app) => app.id !== "agent").map((app) => [app.id, app.title]),
+    APP_DEFINITIONS.filter(
+      (app) => app.id !== "agent" && app.id !== "uptime" && app.id !== "top-songs",
+    ).map((app) => [app.id, app.title]),
   ),
-  "activity-monitor": "activity monitor",
 } as Record<WindowType, string>;
 
 const STORAGE_KEY = "aditya-os-wallpaper";
@@ -100,6 +103,22 @@ const initialWindowFrames: Record<WindowType, WindowFrameState> = {
     isMinimized: false,
     isMaximized: false,
   },
+  uptime: {
+    x: 280,
+    y: 130,
+    zIndex: 19,
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+  },
+  "top-songs": {
+    x: 300,
+    y: 100,
+    zIndex: 20,
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+  },
 };
 
 export default function Home() {
@@ -107,6 +126,8 @@ export default function Home() {
   const [wallpapers, setWallpapers] = useState<WallpaperMeta[]>([]);
   const [wallpaper, setWallpaper] = useState<string>("");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [mobileHomeActive, setMobileHomeActive] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [windows, setWindows] =
     useState<Record<WindowType, WindowFrameState>>(initialWindowFrames);
 
@@ -124,6 +145,28 @@ export default function Home() {
       };
     });
     setActiveWindow(window);
+  };
+
+  const openWindowForShell = (window: WindowType) => {
+    openWindow(window);
+    if (isMobile) {
+      setMobileHomeActive(false);
+    }
+  };
+
+  const closeWindowForShell = (window: WindowType) => {
+    setWindows((previous) => ({
+      ...previous,
+      [window]: {
+        ...previous[window],
+        isOpen: false,
+        isMinimized: false,
+        isMaximized: false,
+      },
+    }));
+    if (isMobile) {
+      setMobileHomeActive(true);
+    }
   };
 
   const bringToFront = (window: WindowType) => {
@@ -183,18 +226,6 @@ export default function Home() {
     }));
   };
 
-  const closeWindow = (window: WindowType) => {
-    setWindows((previous) => ({
-      ...previous,
-      [window]: {
-        ...previous[window],
-        isOpen: false,
-        isMinimized: false,
-        isMaximized: false,
-      },
-    }));
-  };
-
   useEffect(() => {
     let cancelled = false;
 
@@ -226,33 +257,62 @@ export default function Home() {
     window.localStorage.setItem(STORAGE_KEY, wallpaper);
   }, [wallpaper]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncMobileLayout = () => {
+      const mobile = mediaQuery.matches;
+      setIsMobile(mobile);
+      if (mobile) {
+        setMobileHomeActive(true);
+        setWindows((previous) => ({
+          ...previous,
+          agent: {
+            ...previous.agent,
+            isOpen: false,
+          },
+        }));
+      } else {
+        setMobileHomeActive(false);
+      }
+    };
+
+    syncMobileLayout();
+    mediaQuery.addEventListener("change", syncMobileLayout);
+    return () => mediaQuery.removeEventListener("change", syncMobileLayout);
+  }, []);
+
   return (
-    <main className="flex h-screen overflow-hidden flex-col text-[var(--os-text)]">
+    <main className="flex h-dvh overflow-hidden flex-col text-[var(--os-text)] md:h-screen">
       <TopBar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
+      <IdleNotification
+        activeWindow={activeWindow}
+        windows={windows}
+        onOpenAgent={() => openWindowForShell("agent")}
+      />
 
       <div className="flex flex-1 min-h-0">
         <Desktop
           wallpaper={wallpaper}
           activeWindow={activeWindow}
+          mobileHomeActive={mobileHomeActive}
           windowTitles={windowTitles}
           windows={windows}
           wallpapers={wallpapers}
           selectedWallpaper={wallpaper}
           onSelectWallpaper={setWallpaper}
-          onSelectWindow={openWindow}
+          onSelectWindow={openWindowForShell}
           onBringToFront={bringToFront}
           onMoveWindow={moveWindow}
           onMinimizeWindow={minimizeWindow}
           onMaximizeWindow={maximizeWindow}
-          onCloseWindow={closeWindow}
+          onCloseWindow={closeWindowForShell}
         />
       </div>
 
-      <Dock />
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onOpenChange={setIsCommandPaletteOpen}
-        onSelectApp={openWindow}
+        onSelectApp={openWindowForShell}
       />
     </main>
   );

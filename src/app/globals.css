@@ -8,6 +8,8 @@
   --os-border: #e0e0db;
   --os-hover: #f0f0ed;
   --os-dot: rgba(0, 0, 0, 0.03);
+  --mobile-tab-bar-height: 3.5rem;
+  --mobile-agent-composer-height: 4rem;
 }
 
 .dark {
@@ -18,6 +20,8 @@
   --os-border: rgba(255, 255, 255, 0.14);
   --os-hover: rgba(255, 255, 255, 0.08);
   --os-dot: rgba(255, 255, 255, 0.04);
+  --os-border-strong: rgba(0,0,0,0.12);
+  --os-titlebar: rgba(255,255,255,0.4);
 }
 
 @theme inline {
@@ -82,4 +86,77 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.7;
+}
+
+@keyframes mobile-app-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-app-fade-in {
+    animation: mobile-app-fade-in 200ms ease-out;
+  }
+}
+
+@keyframes like-heart-bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes like-float-up {
+  from {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -65px);
+    opacity: 0;
+  }
+}
+
+@keyframes like-particle-burst {
+  from {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  to {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px)));
+    opacity: 0;
+  }
+}
+
+.like-heart-bounce {
+  animation: like-heart-bounce 200ms ease-out;
+}
+
+.like-float-plus-one {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fb7185;
+  pointer-events: none;
+  animation: like-float-up 900ms ease-out forwards;
+}
+
+.like-particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+  animation: like-particle-burst 700ms ease-out forwards;
 }

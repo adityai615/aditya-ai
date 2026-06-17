@@ -194,7 +194,7 @@ export function CommandPalette({ isOpen, onOpenChange, onSelectApp }: CommandPal
           )}
         </div>
 
-        <footer className="border-t-[0.5px] border-[var(--os-border)] px-3 py-2">
+        <footer className="hidden border-t-[0.5px] border-[var(--os-border)] px-3 py-2 sm:block">
           <p className="text-label text-[var(--os-text-muted)]">↑↓ navigate · enter open · esc close</p>
         </footer>
       </div>

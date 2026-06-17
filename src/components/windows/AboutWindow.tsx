@@ -41,10 +41,10 @@ const navItems: NavItem[] = [
 ];
 
 const quickStats: Stat[] = [
-  { label: "Projects Built", value: "10+" },
-  { label: "Freelance Clients", value: "5+" },
-  { label: "AI Systems", value: "Multiple" },
-  { label: "Status", value: "Available" },
+  { label: "Projects", value: "8+" },
+  { label: "Clients", value: "5+" },
+  { label: "Experience", value: "2+ yrs" },
+  { label: "AI Apps", value: "10+" },
 ];
 
 const skillGroups: SkillGroup[] = [

@@ -260,10 +260,10 @@ export function CalculatorWindow() {
   };
 
   return (
-    <div className="h-full overflow-auto px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-[420px]">
-        <div className="mb-4 max-h-28 overflow-auto rounded-md border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] p-3">
-          <p className="text-label mb-2 text-[var(--os-text-muted)]">History</p>
+    <div className="flex h-full min-h-0 flex-col overflow-auto px-3 pt-4 sm:px-4 sm:pt-5">
+      <div className="mx-auto flex w-full max-w-none flex-1 flex-col md:max-w-[320px]">
+        <div className="mb-3 max-h-20 overflow-auto rounded-md border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] p-2.5">
+          <p className="text-label mb-1.5 text-[var(--os-text-muted)]">History</p>
           {history.length === 0 ? (
             <p className="text-ui text-[var(--os-text-muted)]">No calculations yet.</p>
           ) : (
@@ -281,23 +281,23 @@ export function CalculatorWindow() {
           )}
         </div>
 
-        <div className="rounded-xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] p-4">
+        <div className="flex flex-1 flex-col rounded-xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] p-3">
           <div
-            className="mb-4 rounded-lg border-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-4 py-3 text-right"
+            className="mb-3 rounded-lg border-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2 text-right"
             style={{ fontFamily: "var(--font-mono)" }}
           >
-            <p className="text-[clamp(36px,6vw,48px)] leading-none font-normal text-[var(--os-text)]">
+            <p className="text-[clamp(28px,5vw,36px)] leading-none font-normal text-[var(--os-text)]">
               {displayValue}
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid flex-1 grid-cols-4 gap-1.5 content-end">
             {buttons.map((button) => (
               <button
                 key={button.label}
                 type="button"
                 onClick={button.action}
-                className={`h-12 rounded-md text-sm font-medium transition-colors duration-150 ${getButtonClass(button.type)}`}
+                className={`min-h-11 h-11 rounded-md text-[13px] font-medium transition-colors duration-150 md:h-10 ${getButtonClass(button.type)}`}
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {button.label}

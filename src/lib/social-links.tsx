@@ -2,20 +2,20 @@ import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
 import { GITHUB_USERNAME } from "@/lib/github";
 
-const dockItems: Array<{
+export type SocialLink = {
   label: string;
   icon: ReactNode;
   href: string;
-  active?: boolean;
-}> = [
+};
+
+export const SOCIAL_LINKS: SocialLink[] = [
   {
-    label: "github",
+    label: "GitHub",
     href: `https://github.com/${GITHUB_USERNAME}`,
-    active: true,
     icon: (
       <svg
-        width="18"
-        height="18"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -32,12 +32,12 @@ const dockItems: Array<{
     ),
   },
   {
-    label: "linkedin",
+    label: "LinkedIn",
     href: "https://linkedin.com/in/adityajain-ai",
     icon: (
       <svg
-        width="18"
-        height="18"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -54,36 +54,8 @@ const dockItems: Array<{
     ),
   },
   {
-    label: "mail",
+    label: "Email",
     href: "mailto:adityajain.dev.ai11@gmail.com",
-    icon: <Mail size={18} strokeWidth={1.75} />,
+    icon: <Mail size={16} strokeWidth={1.75} />,
   },
 ];
-
-export function Dock() {
-  return (
-    <footer className="pointer-events-none fixed bottom-5 left-1/2 z-40 -translate-x-1/2">
-      <nav className="pointer-events-auto flex w-fit items-end gap-4 rounded-[18px] border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.12)] px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-[30px] backdrop-saturate-[200%]">
-        {dockItems.map((item) => (
-          <div key={item.label} className="flex flex-col items-center gap-1">
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={item.label}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[rgba(255,255,255,0.75)] transition-all duration-150 ease-in hover:scale-[1.15] hover:text-[rgba(255,255,255,0.9)]"
-            >
-              {item.icon}
-            </a>
-            <span
-              className={`h-[3px] w-[3px] rounded-full bg-white ${
-                item.active ? "opacity-100" : "opacity-0"
-              }`}
-              aria-hidden="true"
-            />
-          </div>
-        ))}
-      </nav>
-    </footer>
-  );
-}

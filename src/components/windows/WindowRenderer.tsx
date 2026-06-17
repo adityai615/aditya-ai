@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { ActivityMonitorWindow } from "./ActivityMonitorWindow";
 import { AboutWindow } from "./AboutWindow";
 import { AgentWindow } from "./AgentWindow";
@@ -7,6 +8,8 @@ import { ProjectsWindow } from "./ProjectsWindow";
 import { ResumeWindow } from "./ResumeWindow";
 import { SettingsWindow } from "./SettingsWindow";
 import { TerminalWindow } from "./TerminalWindow";
+import { TopSongsWindow } from "./TopSongsWindow";
+import { UptimeWindow } from "./UptimeWindow";
 import type { WallpaperMeta, WindowType } from "../os/types";
 
 type WindowRendererProps = {
@@ -22,7 +25,7 @@ export function WindowRenderer({
   selectedWallpaper,
   onSelectWallpaper,
 }: WindowRendererProps) {
-  const renderers: Record<WindowType, JSX.Element> = {
+  const renderers: Record<WindowType, ReactElement> = {
     agent: <AgentWindow />,
     "activity-monitor": <ActivityMonitorWindow />,
     projects: <ProjectsWindow />,
@@ -38,6 +41,8 @@ export function WindowRenderer({
       />
     ),
     github: <GithubWindow />,
+    uptime: <UptimeWindow />,
+    "top-songs": <TopSongsWindow />,
   };
 
   return renderers[windowType] ?? <AgentWindow />;

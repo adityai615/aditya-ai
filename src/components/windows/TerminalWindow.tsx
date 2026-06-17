@@ -1,22 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type OutputTone = "default" | "success" | "error" | "cyan";
 
+/** String line uses entry tone; object can override and add link. */
+type OutputLine =
+  | string
+  | { text: string; tone?: OutputTone; href?: string };
+
 type TerminalEntry =
   | { id: number; type: "command"; text: string }
-  | { id: number; type: "output"; lines: string[]; tone: OutputTone };
+  | { id: number; type: "output"; lines: OutputLine[]; tone: OutputTone };
 
 type CommandResult =
   | { type: "clear" }
-  | { type: "output"; lines: string[]; tone?: OutputTone };
+  | { type: "output"; lines: OutputLine[]; tone?: OutputTone };
 
 type CommandHandler = (args: string[], rawInput: string) => CommandResult;
 
-const PROMPT = "aadi@os:~$";
-const BOOT_LINE_1 = "Aadi OS Terminal v1.0";
+const PROMPT = "aditya@os:~$";
+const BOOT_LINE_1 = "Aditya OS Terminal v1.0";
 const BOOT_LINE_2 = "Type 'help' to see available commands.";
+
+const HIRE_AADI_EMAIL = "aditya@example.com";
+const HIRE_AADI_LINKEDIN = "https://linkedin.com/in/aditya-jain";
+const HIRE_AADI_ASCII: string[] = [
+  "  _    _ _____ _____  ______ _____  _",
+  " | |  | |_   _|  __ \\|  ____|  __ \\| |",
+  " | |__| | | | | |__) | |__  | |  | | |",
+  " |  __  | | | |  _  /|  __| | |  | | |",
+  " | |  | |_| |_| | \\ \\| |____| |__| |_|",
+  " |_|  |_|_____|_|  \\_\\______|_____/(_)",
+];
 
 const commandList = [
   "help",
@@ -39,11 +55,22 @@ const commandList = [
   "cat varta-ai",
 ];
 
+const RESUME_LINES: OutputLine[] = [
+  "Experience summary: Freelance developer delivering production-ready AI and web systems.",
+  "Skills summary: Full stack engineering, AI pipelines, voice and automation tooling.",
+  "Projects summary: Voice CRM, Ecommerce Platform, Varta AI, 3D Configurator.",
+  "Download Resume → /resume.pdf",
+];
+
 const commands: Record<string, CommandHandler> = {
   help: () => ({
     type: "output",
     tone: "success",
-    lines: ["Available commands:", ...commandList.map((item) => `- ${item}`)],
+    lines: [
+      "Available commands:",
+      ...commandList.map((item) => `- ${item}`),
+      { text: "- 🔒 ???", tone: "default" },
+    ],
   }),
   "help projects": () => ({
     type: "output",
@@ -173,12 +200,11 @@ const commands: Record<string, CommandHandler> = {
   }),
   resume: () => ({
     type: "output",
-    lines: [
-      "Experience summary: Freelance developer delivering production-ready AI and web systems.",
-      "Skills summary: Full stack engineering, AI pipelines, voice and automation tooling.",
-      "Projects summary: Voice CRM, Ecommerce Platform, Varta AI, 3D Configurator.",
-      "Download Resume → /resume.pdf",
-    ],
+    lines: RESUME_LINES,
+  }),
+  "cat resume": () => ({
+    type: "output",
+    lines: RESUME_LINES,
   }),
   date: () => ({
     type: "output",
@@ -213,7 +239,34 @@ function toneClass(tone: OutputTone) {
   if (tone === "success") return "text-[#4ade80]";
   if (tone === "error") return "text-[#f87171]";
   if (tone === "cyan") return "text-[#22d3ee]";
-  return "text-[rgba(255,255,255,0.65)]";
+  return "text-[var(--os-text-muted)]";
+}
+
+function renderOutputLine(
+  line: OutputLine,
+  entryTone: OutputTone,
+): { className: string; node: ReactNode } {
+  if (typeof line === "string") {
+    return { className: toneClass(entryTone), node: line };
+  }
+  const tone = line.tone ?? entryTone;
+  const className = toneClass(tone);
+  if (line.href) {
+    const isHttp = /^https?:\/\//i.test(line.href);
+    return {
+      className,
+      node: (
+        <a
+          href={line.href}
+          {...(isHttp ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="underline decoration-white/30 underline-offset-2 hover:opacity-90"
+        >
+          {line.text}
+        </a>
+      ),
+    };
+  }
+  return { className, node: line.text };
 }
 
 export function TerminalWindow() {
@@ -228,6 +281,24 @@ export function TerminalWindow() {
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(1);
+  const sudoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const queueSudoTimeout = (fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      sudoTimeoutsRef.current = sudoTimeoutsRef.current.filter((t) => t !== id);
+      fn();
+    }, ms);
+    sudoTimeoutsRef.current.push(id);
+  };
+
+  useEffect(() => {
+    return () => {
+      for (const t of sudoTimeoutsRef.current) {
+        clearTimeout(t);
+      }
+      sudoTimeoutsRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -283,6 +354,101 @@ export function TerminalWindow() {
       text: rawInput,
     };
 
+    const normalized = rawInput.replace(/\s+/g, " ").trim();
+    const lower = normalized.toLowerCase();
+
+    const finishInput = () => {
+      setHistory((prev) => [...prev, rawInput]);
+      setHistoryIndex(null);
+      setInputValue("");
+    };
+
+    if (lower === "sudo hire-aadi") {
+      finishInput();
+
+      const passwordOutput: TerminalEntry = {
+        id: nextIdRef.current++,
+        type: "output",
+        lines: ["[sudo] password for visitor: ********"],
+        tone: "default",
+      };
+
+      setEntries((prev) => [...prev, commandEntry, passwordOutput]);
+
+      const postAsciiChunks: { lines: OutputLine[]; tone: OutputTone }[] = [
+        { lines: ["Permission granted."], tone: "success" },
+        { lines: ["Aditya has been added to your hiring pipeline."], tone: "success" },
+        { lines: ["Initiating contact protocol..."], tone: "success" },
+        { lines: [""], tone: "success" },
+        {
+          lines: [
+            {
+              text: `→ Email: ${HIRE_AADI_EMAIL}`,
+              tone: "cyan",
+              href: `mailto:${HIRE_AADI_EMAIL}`,
+            },
+          ],
+          tone: "cyan",
+        },
+        {
+          lines: [
+            {
+              text: `→ LinkedIn: ${HIRE_AADI_LINKEDIN}`,
+              tone: "cyan",
+              href: HIRE_AADI_LINKEDIN,
+            },
+          ],
+          tone: "cyan",
+        },
+        {
+          lines: ["→ Resume: type 'cat resume' to view"],
+          tone: "default",
+        },
+      ];
+
+      queueSudoTimeout(() => {
+        setEntries((prev) => [
+          ...prev,
+          {
+            id: nextIdRef.current++,
+            type: "output",
+            lines: HIRE_AADI_ASCII,
+            tone: "success",
+          },
+        ]);
+
+        postAsciiChunks.forEach((chunk, i) => {
+          queueSudoTimeout(() => {
+            setEntries((prev) => [
+              ...prev,
+              {
+                id: nextIdRef.current++,
+                type: "output",
+                lines: chunk.lines,
+                tone: chunk.tone,
+              },
+            ]);
+          }, 300 * (i + 1));
+        });
+      }, 600);
+
+      return;
+    }
+
+    if (lower.startsWith("sudo")) {
+      finishInput();
+
+      const outputEntry: TerminalEntry = {
+        id: nextIdRef.current++,
+        type: "output",
+        lines: ["sudo: command not found. Did you mean 'sudo hire-aadi'?"],
+        tone: "default",
+      };
+
+      setEntries((prev) => [...prev, commandEntry, outputEntry]);
+      return;
+    }
+
     const parsed = parseCommand(rawInput);
     const handler = parsed ? commands[parsed.key] : undefined;
     const result = handler
@@ -293,11 +459,13 @@ export function TerminalWindow() {
           lines: ['Command not found.', 'Type "help" to see available commands.'],
         };
 
-    setHistory((prev) => [...prev, rawInput]);
-    setHistoryIndex(null);
-    setInputValue("");
+    finishInput();
 
     if (result.type === "clear") {
+      for (const t of sudoTimeoutsRef.current) {
+        clearTimeout(t);
+      }
+      sudoTimeoutsRef.current = [];
       setEntries([]);
       return;
     }
@@ -347,13 +515,12 @@ export function TerminalWindow() {
   };
 
   return (
-    <div className="h-full p-6">
-      <div
-        className="font-mono-ui h-full overflow-auto rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,15,20,0.85)] p-6 text-[14px] leading-[1.7] backdrop-blur-[40px]"
-        onClick={() => inputRef.current?.focus()}
-      >
-        <p className="text-[rgba(255,255,255,0.35)]">{line1}</p>
-        <p className="text-[rgba(255,255,255,0.35)]">{line2}</p>
+    <div
+      className="font-mono-ui flex h-full min-h-0 flex-col overflow-auto p-4 text-[13px] leading-[1.7] text-[var(--os-text)] md:p-6 md:text-[14px]"
+      onClick={() => inputRef.current?.focus()}
+    >
+        <p className="text-[var(--os-text-muted)]">{line1}</p>
+        <p className="text-[var(--os-text-muted)]">{line2}</p>
         <p className="h-[1.7em]" />
 
         {entries.map((entry) => {
@@ -361,16 +528,21 @@ export function TerminalWindow() {
             return (
               <p key={entry.id} className="mb-2">
                 <span className="text-[#4ade80]">{PROMPT}</span>{" "}
-                <span className="text-white">{entry.text}</span>
+                <span className="text-[var(--os-text)]">{entry.text}</span>
               </p>
             );
           }
 
           return (
-            <div key={entry.id} className={`mb-4 ${toneClass(entry.tone)}`}>
-              {entry.lines.map((line, index) => (
-                <p key={`${entry.id}-${index}`}>{line}</p>
-              ))}
+            <div key={entry.id} className="mb-4">
+              {entry.lines.map((line, index) => {
+                const { className, node } = renderOutputLine(line, entry.tone);
+                return (
+                  <p key={`${entry.id}-${index}`} className={className}>
+                    {node}
+                  </p>
+                );
+              })}
             </div>
           );
         })}
@@ -387,15 +559,15 @@ export function TerminalWindow() {
                 setHistoryIndex(null);
               }}
               onKeyDown={onInputKeyDown}
-              className="min-w-0 flex-1 bg-transparent text-white outline-none"
+              className="min-w-0 flex-1 bg-transparent text-[var(--os-text)] outline-none"
               spellCheck={false}
             />
-            <span className="h-4 w-[1px] animate-pulse bg-white/80" aria-hidden="true" />
+            <span className="h-4 w-[1px] animate-pulse bg-[var(--os-text)]/80" aria-hidden="true" />
           </div>
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-[#4ade80]">{PROMPT}</span>
-            <span className="h-4 w-[1px] animate-pulse bg-white/80" aria-hidden="true" />
+            <span className="h-4 w-[1px] animate-pulse bg-[var(--os-text)]/80" aria-hidden="true" />
           </div>
         )}
 
@@ -403,7 +575,6 @@ export function TerminalWindow() {
         <p className="sr-only">
           History index: {historyIndex === null ? "none" : historyIndex}
         </p>
-      </div>
     </div>
   );
 }
