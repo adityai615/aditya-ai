@@ -181,11 +181,12 @@ const projects: Project[] = [
       "TypeScript",
       "Tailwind CSS",
       "Gemini API",
+      "Groq API",
       "Upstash Redis",
       "Spotify Web API",
     ],
     achievements: [
-      "Working AI assistant powered by Gemini",
+      "Working AI assistant (Gemini + Groq)",
       'Live "Top 50 India" Spotify chart',
       "Multi-tap like system with real-time animations",
       "Fully responsive mobile tab-based navigation",
@@ -197,9 +198,9 @@ const projects: Project[] = [
       architecture:
         "Next.js app with a desktop-style window manager, server-side API routes for AI chat, Spotify, likes (Upstash Redis), and client-side state for draggable windows and mobile tab navigation.",
       techStack:
-        "Next.js 14, TypeScript, Tailwind CSS, Anthropic Claude API for the AI agent, Upstash Redis for the global like counter, Spotify Web API for live chart data.",
+        "Next.js 16, TypeScript, Tailwind CSS, Gemini API, Groq API, Upstash Redis for the global like counter, Spotify Web API for live chart data.",
       keyFeatures: [
-        "Working AI assistant (powered by Claude) that answers visitor questions",
+        "Working AI assistant (Gemini + Groq with automatic fallback)",
         'Live "Top 50 India" Spotify chart',
         "Multi-tap like system with real-time animations",
         "Fully responsive mobile experience with a separate tab-based navigation layout",

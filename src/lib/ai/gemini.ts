@@ -1,10 +1,12 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 
+import type { ChatTurn } from "@/lib/ai/chat-types";
+
 const GEMINI_MODEL = "gemini-2.5-flash";
 
 export type GeminiGenerateRequest = {
-  message: string;
+  messages: ChatTurn[];
   systemPrompt: string;
 };
 
@@ -19,14 +21,14 @@ function getGeminiModel() {
 }
 
 export async function generateWithGemini({
-  message,
+  messages,
   systemPrompt,
 }: GeminiGenerateRequest): Promise<string> {
   const model = getGeminiModel();
   const result = await generateText({
     model,
     system: systemPrompt,
-    prompt: message,
+    messages,
     temperature: 0.3,
   });
 

@@ -40,6 +40,7 @@ const REQUEST_TIMEOUT_MS = 20_000;
 
 const ERROR_MESSAGE = "Connection hiccup on my end. Try again in a moment?";
 const TIMEOUT_MESSAGE = "That took longer than expected — mind trying again?";
+const RATE_LIMIT_MESSAGE = "You're sending messages a bit fast — try again in a few minutes.";
 
 type ChatMessage = {
   id: string;
@@ -338,7 +339,8 @@ export function AgentWindow() {
     };
 
     setHasStartedChat(true);
-    setMessages((previous) => [...previous, userMessage]);
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setDraft("");
     setIsLoading(true);
 
@@ -352,7 +354,7 @@ export function AgentWindow() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: trimmed,
+          messages: nextMessages.map(({ role, content }) => ({ role, content })),
           provider: chatProvider,
           visitor: {
             browser: visitor.browser,
@@ -363,6 +365,10 @@ export function AgentWindow() {
         }),
         signal: controller.signal,
       });
+
+      if (response.status === 429) {
+        throw new Error("rate_limited");
+      }
 
       if (!response.ok) {
         throw new Error("Chat API request failed");
@@ -389,13 +395,19 @@ export function AgentWindow() {
     } catch (error) {
       const isTimeout =
         error instanceof DOMException && error.name === "AbortError";
+      const isRateLimited =
+        error instanceof Error && error.message === "rate_limited";
 
       setMessages((previous) => [
         ...previous,
         {
           id: `${Date.now()}-assistant-error`,
           role: "assistant",
-          content: isTimeout ? TIMEOUT_MESSAGE : ERROR_MESSAGE,
+          content: isRateLimited
+            ? RATE_LIMIT_MESSAGE
+            : isTimeout
+              ? TIMEOUT_MESSAGE
+              : ERROR_MESSAGE,
         },
       ]);
     } finally {

@@ -1,5 +1,6 @@
 import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
+import { CONTACT_EMAIL_MAILTO, CONTACT_LINKEDIN_URL } from "@/lib/contact";
 import { GITHUB_USERNAME } from "@/lib/github";
 
 export type SocialLink = {
@@ -33,7 +34,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     label: "LinkedIn",
-    href: "https://linkedin.com/in/adityajain-ai",
+    href: CONTACT_LINKEDIN_URL,
     icon: (
       <svg
         width="16"
@@ -55,7 +56,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     label: "Email",
-    href: "mailto:adityajain.dev.ai11@gmail.com",
+    href: CONTACT_EMAIL_MAILTO,
     icon: <Mail size={16} strokeWidth={1.75} />,
   },
 ];

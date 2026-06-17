@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Briefcase, Code2, GraduationCap, Trophy, User } from "lucide-react";
 
+import { portfolioContext } from "@/lib/portfolio-context";
+
 type SectionId =
   | "overview"
   | "experience"
@@ -27,11 +29,6 @@ type SkillGroup = {
   items: string[];
 };
 
-type Achievement = {
-  title: string;
-  subtitle: string;
-};
-
 const navItems: NavItem[] = [
   { id: "overview", label: "Overview", icon: User },
   { id: "experience", label: "Experience", icon: Briefcase },
@@ -47,32 +44,14 @@ const quickStats: Stat[] = [
   { label: "AI Apps", value: "10+" },
 ];
 
-const skillGroups: SkillGroup[] = [
-  { title: "Frontend", items: ["Next.js", "React", "TypeScript", "Tailwind CSS"] },
-  {
-    title: "Backend",
-    items: ["Node.js", "FastAPI", "Express", "MongoDB", "PostgreSQL"],
-  },
-  {
-    title: "AI",
-    items: ["LangChain", "LlamaIndex", "Groq", "FAISS", "Vector Databases"],
-  },
-  { title: "Tools", items: ["Git", "GitHub", "Postman", "Vercel", "AWS"] },
-];
+const { profile, experience, skills, education, achievements } = portfolioContext;
+const primaryExperience = experience[0];
+const primaryEducation = education[0];
 
-const experienceHighlights = [
-  "Delivered multiple client projects",
-  "Built production ecommerce platforms",
-  "Developed AI-powered communication systems",
-  "Managed deployment and support",
-];
-
-const achievements: Achievement[] = [
-  { title: "Best Character Award", subtitle: "JECRC Fresher's Party 2024" },
-  { title: "Placement Cell Member", subtitle: "JECRC Foundation" },
-  { title: "Freelance Projects Delivered", subtitle: "5+" },
-  { title: "Production Deployments", subtitle: "Multiple" },
-];
+const skillGroups: SkillGroup[] = skills.map((group) => ({
+  title: group.category,
+  items: group.items,
+}));
 
 export function AboutWindow() {
   const [activeSection, setActiveSection] = useState<SectionId>("overview");
@@ -168,15 +147,13 @@ export function AboutWindow() {
               about
             </p>
             <h2 className="mt-3 text-[clamp(30px,4.2vw,44px)] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--os-text)]">
-              Aditya Jain
+              {profile.fullName}
             </h2>
             <p className="text-ui mt-3 text-[15px] font-medium text-[var(--os-text-muted)]">
-              Full Stack Developer • AI Builder • Freelancer
+              {profile.headline.replace(/,/g, " •")}
             </p>
             <p className="text-ui mt-6 max-w-[760px] leading-relaxed text-[var(--os-text-muted)]">
-              A second-year Computer Science student at JECRC University focused
-              on building production-grade web applications, AI systems,
-              automation tools, and scalable digital products.
+              {profile.summary}
             </p>
             <p className="text-ui mt-4 max-w-[760px] leading-relaxed text-[var(--os-text-muted)]">
               Currently working with clients and building real-world software
@@ -217,13 +194,13 @@ export function AboutWindow() {
             </h3>
             <div className="mt-5 border-l-[0.5px] border-[var(--os-border)] pl-5">
               <p className="text-ui text-[16px] font-medium text-[var(--os-text)]">
-                Freelance Full Stack &amp; AI Developer
+                {primaryExperience?.role}
               </p>
               <p className="text-label mt-1 text-[var(--os-text-muted)]">
-                2025 - Present
+                {primaryExperience?.period}
               </p>
               <ul className="mt-4 space-y-2">
-                {experienceHighlights.map((highlight) => (
+                {primaryExperience?.highlights.map((highlight) => (
                   <li key={highlight} className="text-ui text-[var(--os-text-muted)]">
                     • {highlight}
                   </li>
@@ -275,19 +252,19 @@ export function AboutWindow() {
             </h3>
             <div className="mt-5 rounded-md border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] p-5">
               <p className="text-ui text-[16px] font-medium text-[var(--os-text)]">
-                JECRC Foundation
+                {primaryEducation?.institution}
               </p>
               <p className="text-ui mt-2 text-[var(--os-text-muted)]">
-                Bachelor of Technology
+                {primaryEducation?.degree}
               </p>
               <p className="text-ui mt-1 text-[var(--os-text-muted)]">
-                Computer Science with AI
+                {primaryEducation?.specialization}
               </p>
               <p className="text-label mt-4 text-[var(--os-text-muted)]">
-                2024 - Present
+                {primaryEducation?.period}
               </p>
               <p className="text-label mt-4 text-[var(--os-text-muted)]">
-                Jaipur, Rajasthan
+                {primaryEducation?.location}
               </p>
             </div>
           </section>

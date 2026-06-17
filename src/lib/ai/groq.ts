@@ -1,10 +1,12 @@
 import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 
+import type { ChatTurn } from "@/lib/ai/chat-types";
+
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 export type GroqGenerateRequest = {
-  message: string;
+  messages: ChatTurn[];
   systemPrompt: string;
 };
 
@@ -19,14 +21,14 @@ function getGroqModel() {
 }
 
 export async function generateWithGroq({
-  message,
+  messages,
   systemPrompt,
 }: GroqGenerateRequest): Promise<string> {
   const model = getGroqModel();
   const result = await generateText({
     model,
     system: systemPrompt,
-    prompt: message,
+    messages,
     temperature: 0.3,
   });
 

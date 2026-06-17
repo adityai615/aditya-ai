@@ -103,10 +103,11 @@ export const portfolioContext: PortfolioContext = {
       description:
         "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
       techStack: [
-        "Next.js 14",
+        "Next.js 16",
         "TypeScript",
         "Tailwind CSS",
         "Gemini API",
+        "Groq API",
         "Upstash Redis",
         "Spotify Web API",
       ],

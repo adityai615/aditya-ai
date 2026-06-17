@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { parseChatTurns } from "@/lib/ai/chat-types";
 import { generateAIResponse, type VisitorContextPayload } from "@/lib/ai/provider";
 import { parseChatModelProvider } from "@/lib/ai/models";
-
-const MAX_MESSAGE_LENGTH = 2000;
+import { checkChatRateLimit, getClientIp } from "@/lib/chat-rate-limit";
 
 type ChatRequestBody = {
   message?: string;
+  messages?: unknown;
   provider?: unknown;
   visitor?: unknown;
   isFirstMessageInConversation?: unknown;
@@ -39,19 +40,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const message = body.message?.trim();
-  if (!message) {
+  const parsedMessages = parseChatTurns(body.messages);
+  if (!parsedMessages) {
     return NextResponse.json(
-      { error: "`message` is required and must be a non-empty string" },
+      { error: "`messages` must be a non-empty array ending with a user turn" },
       { status: 400 },
     );
   }
 
-  if (message.length > MAX_MESSAGE_LENGTH) {
-    return NextResponse.json(
-      { error: `Message must be at most ${MAX_MESSAGE_LENGTH} characters` },
-      { status: 400 },
-    );
+  const clientIp = getClientIp(request);
+
+  try {
+    const rateLimit = await checkChatRateLimit(clientIp);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: "Too many requests. Please wait a bit before sending more messages.",
+          rateLimited: true,
+        },
+        { status: 429 },
+      );
+    }
+  } catch {
+    // Allow chat if rate-limit storage is temporarily unavailable.
   }
 
   const visitor = parseVisitorPayload(body.visitor);
@@ -59,7 +70,7 @@ export async function POST(request: Request) {
   const provider = parseChatModelProvider(body.provider);
 
   const result = await generateAIResponse({
-    message,
+    messages: parsedMessages,
     provider,
     visitor,
     isFirstMessageInConversation,

@@ -19,12 +19,15 @@ type CommandResult =
 
 type CommandHandler = (args: string[], rawInput: string) => CommandResult;
 
+import { CONTACT_EMAIL, CONTACT_LINKEDIN_URL } from "@/lib/contact";
+import { GITHUB_USERNAME } from "@/lib/github";
+
 const PROMPT = "aditya@os:~$";
 const BOOT_LINE_1 = "Aditya OS Terminal v1.0";
 const BOOT_LINE_2 = "Type 'help' to see available commands.";
 
-const HIRE_AADI_EMAIL = "aditya@example.com";
-const HIRE_AADI_LINKEDIN = "https://linkedin.com/in/aditya-jain";
+const HIRE_AADI_EMAIL = CONTACT_EMAIL;
+const HIRE_AADI_LINKEDIN = CONTACT_LINKEDIN_URL;
 const HIRE_AADI_ASCII: string[] = [
   "  _    _ _____ _____  ______ _____  _",
   " | |  | |_   _|  __ \\|  ____|  __ \\| |",
@@ -193,9 +196,9 @@ const commands: Record<string, CommandHandler> = {
     type: "output",
     tone: "cyan",
     lines: [
-      "Email: aditya@example.com",
-      "GitHub: https://github.com/aditya-jain",
-      "LinkedIn: https://linkedin.com/in/aditya-jain",
+      `Email: ${CONTACT_EMAIL}`,
+      `GitHub: https://github.com/${GITHUB_USERNAME}`,
+      `LinkedIn: ${CONTACT_LINKEDIN_URL}`,
     ],
   }),
   resume: () => ({
