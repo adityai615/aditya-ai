@@ -2,216 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-
-type Project = {
-  id: string;
-  number: string;
-  name: string;
-  category: string;
-  description: string;
-  tech: string[];
-  achievements: string[];
-  links: {
-    github?: string;
-    liveDemo?: string;
-  };
-  details: {
-    problem: string;
-    architecture: string;
-    techStack: string;
-    keyFeatures: string[];
-    businessImpact: string;
-    implementationNotes: string;
-  };
-};
-
-const projects: Project[] = [
-  {
-    id: "luminare-voice-labs",
-    number: "01",
-    name: "Luminare Voice Labs",
-    category: "AI Voice CRM",
-    description:
-      "A production-focused voice operations platform built to run outbound AI calling workflows with real-time intelligence, analytics, and control.",
-    tech: ["FastAPI", "LiveKit", "Twilio", "Sarvam AI", "React", "WebSockets"],
-    achievements: [
-      "Real outbound AI phone calls",
-      "STT → LLM → TTS pipeline",
-      "Voice CRM dashboard",
-      "WebSocket voice streaming",
-    ],
-    links: {},
-    details: {
-      problem:
-        "Sales and support teams needed a scalable way to automate high-volume calls without losing context, call quality, or measurable outcomes.",
-      architecture:
-        "Streaming pipeline architecture with telephony ingress, real-time transcription, LLM orchestration, TTS response generation, and dashboard events over WebSockets.",
-      techStack:
-        "FastAPI services, LiveKit media transport, Twilio telephony, Sarvam AI models, React operations UI, JWT auth.",
-      keyFeatures: [
-        "JWT-authenticated operator access",
-        "Call analytics and session visibility",
-        "Real-time call state updates",
-        "Prompt + routing control workflows",
-      ],
-      businessImpact:
-        "Reduced manual calling overhead and enabled faster outbound cycles with measurable call outcomes.",
-      implementationNotes:
-        "Designed for low-latency turn-taking, resilient streaming sessions, and observable event logs for production debugging.",
-    },
-  },
-  {
-    id: "kalakrati-imaginations",
-    number: "02",
-    name: "Kalakrati Imaginations",
-    category: "Production Ecommerce Platform",
-    description:
-      "An end-to-end ecommerce system with reliable payment, logistics, and post-purchase automation flows designed for real commerce operations.",
-    tech: ["Next.js", "MongoDB", "Razorpay", "Delhivery", "Cloudinary", "Resend"],
-    achievements: [
-      "Production deployment",
-      "Payments and shipping workflows",
-      "Admin dashboard",
-      "Email automation",
-    ],
-    links: {},
-    details: {
-      problem:
-        "The business required a production-ready storefront that could support catalog complexity, operational fulfillment, and customer communication at scale.",
-      architecture:
-        "Server-rendered storefront with API-backed admin workflows, integrated payment state machine, shipping event sync, and media delivery pipeline.",
-      techStack:
-        "Next.js application layer, MongoDB data model, Razorpay transactions, Delhivery logistics, Cloudinary media pipeline, Resend notification service.",
-      keyFeatures: [
-        "Variant-aware product management",
-        "Order state and fulfillment visibility",
-        "SEO-oriented page architecture",
-        "Transactional messaging automation",
-      ],
-      businessImpact:
-        "Enabled reliable online sales operations with cleaner fulfillment coordination and improved customer lifecycle communication.",
-      implementationNotes:
-        "Built with production deployment constraints in mind, including payment reliability, content speed, and operational maintainability.",
-    },
-  },
-  {
-    id: "varta-ai",
-    number: "03",
-    name: "Varta AI",
-    category: "WhatsApp AI Agent Platform",
-    description:
-      "A multi-tenant WhatsApp AI platform enabling businesses to run contextual assistants with retrieval, workflows, and managed conversations.",
-    tech: ["FastAPI", "React", "LangChain", "FAISS", "Groq", "Twilio"],
-    achievements: [
-      "WhatsApp AI assistant",
-      "Multi-business support",
-      "RAG architecture",
-      "Conversation management",
-    ],
-    links: {},
-    details: {
-      problem:
-        "Businesses needed a deployable assistant channel on WhatsApp that could answer domain questions and execute workflow actions consistently.",
-      architecture:
-        "Tenant-aware orchestration layer with ingestion and embedding pipeline, FAISS retrieval, LLM response generation, and Twilio message transport.",
-      techStack:
-        "FastAPI backend services, React control panel, LangChain pipelines, FAISS vector index, Groq inference, Twilio WhatsApp integration.",
-      keyFeatures: [
-        "Knowledge base management",
-        "Booking and workflow execution",
-        "Tenant-scoped conversation controls",
-        "Retrieval quality tuning",
-      ],
-      businessImpact:
-        "Accelerated response time for end-users while reducing repetitive support work across participating businesses.",
-      implementationNotes:
-        "Focused on retrieval consistency, workflow predictability, and clear operational controls for non-technical teams.",
-    },
-  },
-  {
-    id: "3d-product-configurator",
-    number: "04",
-    name: "3D Product Configurator",
-    category: "Interactive 3D Commerce",
-    description:
-      "A commerce-grade 3D customization system where users can personalize products and generate 3D assets from text or image inputs.",
-    tech: [
-      "React Three Fiber",
-      "Node.js",
-      "MongoDB",
-      "AWS",
-      "Tripo3D",
-      "Gemini AI",
-    ],
-    achievements: [
-      "Real-time 3D customization",
-      "AI-generated models",
-      "Text-to-3D and Image-to-3D",
-      "Product personalization",
-    ],
-    links: {},
-    details: {
-      problem:
-        "Modern commerce experiences needed richer product interaction than static imagery, especially for configurable products.",
-      architecture:
-        "Client-side 3D renderer with backend generation orchestration, asset persistence, and cloud-backed delivery for model variants.",
-      techStack:
-        "React Three Fiber rendering layer, Node.js services, MongoDB storage, AWS asset hosting, Tripo3D and Gemini AI generation workflows.",
-      keyFeatures: [
-        "Live material and component customization",
-        "AI-assisted 3D asset generation",
-        "Persisted configuration states",
-        "Personalized product visualization",
-      ],
-      businessImpact:
-        "Improved product exploration depth and enabled high-intent personalization experiences for interactive commerce funnels.",
-      implementationNotes:
-        "Prioritized render performance, predictable asset handling, and structured generation pipelines for scalable feature growth.",
-    },
-  },
-  {
-    id: "aditya-os",
-    number: "05",
-    name: "Aditya OS",
-    category: "Interactive Developer Portfolio",
-    description:
-      "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
-    tech: [
-      "Next.js 16",
-      "TypeScript",
-      "Tailwind CSS",
-      "Gemini API",
-      "Groq API",
-      "Upstash Redis",
-      "Spotify Web API",
-    ],
-    achievements: [
-      "Working AI assistant (Gemini + Groq)",
-      'Live "Top 50 India" Spotify chart',
-      "Multi-tap like system with real-time animations",
-      "Fully responsive mobile tab-based navigation",
-    ],
-    links: {},
-    details: {
-      problem:
-        "A traditional portfolio résumé page couldn't capture the depth of Aditya's full-stack and AI work — visitors needed an engaging, memorable way to explore projects and interact directly.",
-      architecture:
-        "Next.js app with a desktop-style window manager, server-side API routes for AI chat, Spotify, likes (Upstash Redis), and client-side state for draggable windows and mobile tab navigation.",
-      techStack:
-        "Next.js 16, TypeScript, Tailwind CSS, Gemini API, Groq API, Upstash Redis for the global like counter, Spotify Web API for live chart data.",
-      keyFeatures: [
-        "Working AI assistant (Gemini + Groq with automatic fallback)",
-        'Live "Top 50 India" Spotify chart',
-        "Multi-tap like system with real-time animations",
-        "Fully responsive mobile experience with a separate tab-based navigation layout",
-      ],
-      businessImpact:
-        "Delivers an immersive, production-deployed showcase of full-stack and AI capabilities that visitors can explore interactively.",
-      implementationNotes:
-        "Built as a self-referential meta-project — the portfolio itself is the demo, with real integrations for AI, music, and social engagement.",
-    },
-  },
-];
+import { PROJECTS } from "@/lib/projects";
 
 export function ProjectsWindow() {
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
@@ -231,7 +22,7 @@ export function ProjectsWindow() {
         </div>
 
         <div className="divide-y-[0.5px] divide-[var(--os-border)]">
-          {projects.map((project) => {
+          {PROJECTS.map((project) => {
             const isExpanded = expandedProjectId === project.id;
 
             return (
@@ -256,7 +47,7 @@ export function ProjectsWindow() {
                     </p>
 
                     <div className="mt-5 flex flex-wrap gap-2">
-                      {project.tech.map((techItem) => (
+                      {project.techStack.map((techItem) => (
                         <span
                           key={techItem}
                           className="text-ui rounded-md border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-3 py-1 text-[13px] text-[var(--os-text-muted)]"
@@ -349,7 +140,7 @@ export function ProjectsWindow() {
                               Tech Stack
                             </p>
                             <p className="text-ui mt-2 text-[var(--os-text-muted)]">
-                              {project.details.techStack}
+                              {project.details.techStackSummary}
                             </p>
                           </div>
                           <div>
@@ -367,7 +158,7 @@ export function ProjectsWindow() {
                             Key Features
                           </p>
                           <ul className="mt-2 space-y-1.5">
-                            {project.details.keyFeatures.map((feature) => (
+                            {project.keyFeatures.map((feature) => (
                               <li
                                 key={feature}
                                 className="text-ui flex items-start gap-2 text-[var(--os-text-muted)]"

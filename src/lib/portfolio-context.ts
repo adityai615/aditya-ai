@@ -1,3 +1,5 @@
+import { PROJECTS_FOR_AGENT } from "@/lib/projects";
+
 export type Profile = {
   fullName: string;
   headline: string;
@@ -61,7 +63,7 @@ export const portfolioContext: PortfolioContext = {
     fullName: "Aditya Jain",
     headline: "Full Stack Developer, AI Builder, Freelancer",
     summary:
-      "Second-year Computer Science student building production-grade web applications, AI systems, automation tools, and scalable digital products.",
+      "Third-year Computer Science student building production-grade web applications, AI systems, automation tools, and scalable digital products.",
     location: "Jaipur, Rajasthan, India",
     availability: "available",
   },
@@ -96,91 +98,7 @@ export const portfolioContext: PortfolioContext = {
       items: ["Git", "GitHub", "Postman", "Vercel", "AWS"],
     },
   ],
-  projects: [
-    {
-      name: "Aditya OS",
-      category: "Interactive Developer Portfolio",
-      description:
-        "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
-      techStack: [
-        "Next.js 16",
-        "TypeScript",
-        "Tailwind CSS",
-        "Gemini API",
-        "Groq API",
-        "Upstash Redis",
-        "Spotify Web API",
-      ],
-      keyFeatures: [
-        "Working AI assistant that answers visitor questions",
-        'Live "Top 50 India" Spotify chart',
-        "Multi-tap like system with real-time animations",
-        "Fully responsive mobile experience with a separate tab-based navigation layout",
-      ],
-      businessImpact:
-        "Showcases full-stack and AI capabilities through an immersive, production-deployed portfolio visitors can explore interactively.",
-    },
-    {
-      name: "Luminare Voice Labs",
-      category: "AI Voice CRM",
-      description:
-        "Production-focused voice operations platform for outbound AI calling workflows with analytics and control.",
-      techStack: ["FastAPI", "LiveKit", "Twilio", "Sarvam AI", "React", "WebSockets"],
-      keyFeatures: [
-        "JWT-authenticated operator access",
-        "Call analytics and session visibility",
-        "Real-time call state updates",
-        "Prompt and routing control workflows",
-      ],
-      businessImpact:
-        "Reduced manual calling overhead and enabled faster outbound cycles with measurable outcomes.",
-    },
-    {
-      name: "Kalakrati Imaginations",
-      category: "Production Ecommerce Platform",
-      description:
-        "End-to-end ecommerce system with payments, logistics, and post-purchase automation workflows.",
-      techStack: ["Next.js", "MongoDB", "Razorpay", "Delhivery", "Cloudinary", "Resend"],
-      keyFeatures: [
-        "Variant-aware product management",
-        "Order state and fulfillment visibility",
-        "SEO-oriented page architecture",
-        "Transactional messaging automation",
-      ],
-      businessImpact:
-        "Enabled reliable online sales operations with stronger fulfillment coordination and customer communication.",
-    },
-    {
-      name: "Varta AI",
-      category: "WhatsApp AI Agent Platform",
-      description:
-        "Multi-tenant WhatsApp AI platform for contextual assistants, retrieval, and business workflows.",
-      techStack: ["FastAPI", "React", "LangChain", "FAISS", "Groq", "Twilio"],
-      keyFeatures: [
-        "Knowledge base management",
-        "Booking and workflow execution",
-        "Tenant-scoped conversation controls",
-        "Retrieval quality tuning",
-      ],
-      businessImpact:
-        "Accelerated response time for end-users while reducing repetitive support work.",
-    },
-    {
-      name: "3D Product Configurator",
-      category: "Interactive 3D Commerce",
-      description:
-        "Commerce-focused 3D customization system with AI-powered text-to-3D and image-to-3D generation.",
-      techStack: ["React Three Fiber", "Node.js", "MongoDB", "AWS", "Tripo3D", "Gemini AI"],
-      keyFeatures: [
-        "Real-time 3D customization",
-        "AI-assisted 3D asset generation",
-        "Persisted configuration states",
-        "Personalized product visualization",
-      ],
-      businessImpact:
-        "Improved product exploration and enabled high-intent personalization experiences.",
-    },
-  ],
+  projects: PROJECTS_FOR_AGENT,
   education: [
     {
       institution: "JECRC Foundation",
