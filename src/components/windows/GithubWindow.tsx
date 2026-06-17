@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { ExternalLink, RefreshCw, Sparkles, Star, Zap } from "lucide-react";
 import type { GitHubDashboardData, GitHubDashboardRepo } from "@/types/github";
 
@@ -33,9 +34,15 @@ const stagger = {
   },
 };
 
-const fadeUp = {
+const easeOutCubicBezier: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.28, ease: easeOutCubicBezier },
+  },
 };
 
 function formatDate(value: string) {
@@ -469,7 +476,11 @@ export function GithubWindow() {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${item.percentage}%` }}
-                          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                          transition={{
+                            duration: 0.6,
+                            ease: easeOutCubicBezier,
+                            delay: 0.1,
+                          }}
                           className="h-full rounded-full"
                           style={{ backgroundColor: getLanguageColor(item.language) }}
                         />
