@@ -421,7 +421,7 @@ export function AgentWindow() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[var(--os-background)]">
+    <div className="flex h-full min-h-0 flex-1 flex-col bg-[var(--os-background)]">
       <style jsx global>{`
         @keyframes thinking-pulse {
           0%,
@@ -513,18 +513,10 @@ export function AgentWindow() {
         }
         @media (max-width: 767px) {
           .agent-scroll {
-            padding-bottom: calc(
-              var(--mobile-agent-composer-height) + var(--mobile-tab-bar-height) +
-                env(safe-area-inset-bottom) + 0.5rem
-            );
+            padding-bottom: 0.75rem;
           }
-          .agent-composer {
-            position: fixed;
-            right: 0;
-            left: 0;
-            z-index: 35;
-            bottom: calc(var(--mobile-tab-bar-height) + env(safe-area-inset-bottom));
-            padding-bottom: 0.625rem;
+          .agent-composer-fade {
+            display: none;
           }
         }
       `}</style>
@@ -575,7 +567,7 @@ export function AgentWindow() {
         )}
       </section>
 
-      <section className="agent-composer relative shrink-0 bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5">
+      <section className="agent-composer relative z-10 shrink-0 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5">
         <div className="agent-composer-fade" aria-hidden="true" />
         <div className="mx-auto w-full max-w-[860px]">
           <div className="agent-composer-pill flex items-end gap-1.5 rounded-2xl bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:gap-2 sm:px-3.5 sm:py-2 md:px-4 md:py-2.5">
@@ -592,9 +584,9 @@ export function AgentWindow() {
                   }
                 }
               }}
-              placeholder="Ask anything about Aditya..."
+              placeholder="Ask about Aditya"
               rows={1}
-              className="agent-composer-input text-ui min-h-5 max-h-32 w-full flex-1 resize-none bg-transparent py-1 leading-5 text-[var(--os-text)] outline-none placeholder:text-[var(--os-text-muted)] sm:max-h-40 md:min-h-6 md:py-1.5 md:text-[14px] md:leading-[1.45]"
+              className="agent-composer-input text-ui min-h-5 max-h-32 w-full flex-1 resize-none bg-transparent py-1 text-base leading-5 text-[var(--os-text)] outline-none placeholder:text-[var(--os-text-muted)] max-md:text-[16px] sm:max-h-40 md:min-h-6 md:py-1.5 md:text-[14px] md:leading-[1.45]"
             />
             <ModelProviderSelect
               value={chatProvider}

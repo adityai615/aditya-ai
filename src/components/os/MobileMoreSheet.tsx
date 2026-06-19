@@ -48,7 +48,7 @@ export function MobileMoreSheet({
       role="dialog"
       aria-modal="true"
       aria-label="More apps and links"
-      className="fixed inset-0 z-50 flex items-end bg-[rgba(0,0,0,0.35)] md:hidden"
+      className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-[6px] md:hidden"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -57,7 +57,7 @@ export function MobileMoreSheet({
     >
       <div
         ref={sheetRef}
-        className="w-full rounded-t-xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] pb-[env(safe-area-inset-bottom)]"
+        className="w-full rounded-t-xl border-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] shadow-[0_-12px_40px_rgba(0,0,0,0.35)] pb-[env(safe-area-inset-bottom)]"
       >
         <div className="flex justify-center py-2">
           <span className="h-1 w-10 rounded-full bg-[var(--os-border)]" aria-hidden="true" />
@@ -75,19 +75,19 @@ export function MobileMoreSheet({
                   key={app.id}
                   type="button"
                   onClick={() => onSelectApp(app.id)}
-                  className={`flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-[10px] border p-2 transition-colors duration-150 ${
+                  className={`flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-[10px] border-[0.5px] p-2 transition-colors duration-150 ${
                     isActive
-                      ? "border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.15)]"
-                      : "border-transparent hover:bg-[rgba(255,255,255,0.08)]"
+                      ? "border-[var(--os-border)] bg-[var(--os-hover)] text-[var(--os-text)]"
+                      : "border-[var(--os-border)] bg-[var(--os-surface)] text-[var(--os-text-muted)] hover:bg-[var(--os-hover)]"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon
                     size={18}
                     strokeWidth={1.9}
-                    className={isActive ? "text-white" : "text-[rgba(255,255,255,0.55)]"}
+                    className={isActive ? "text-[var(--os-text)]" : "text-[var(--os-text-muted)]"}
                   />
-                  <span className="text-label text-center text-[10px] font-medium leading-tight">
+                  <span className="text-label text-center text-[10px] font-medium leading-tight text-[var(--os-text)]">
                     {app.title}
                   </span>
                 </button>
@@ -96,7 +96,7 @@ export function MobileMoreSheet({
           </div>
 
           <p className="text-label mb-2 mt-4 px-1 text-[var(--os-text-muted)]">Connect</p>
-          <div className="flex items-center gap-1 px-1">
+          <div className="flex items-center gap-1 rounded-lg border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-2 py-1">
             {SOCIAL_LINKS.map((item) => (
               <a
                 key={item.label}

@@ -275,7 +275,7 @@ export function Desktop({
             className="relative min-h-0 flex-1 overflow-hidden max-md:pb-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]"
           >
             {mobileHomeActive ? (
-              <div className="absolute inset-0 max-md:mobile-app-fade-in md:hidden">
+              <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
                 <MobileHome onOpenApp={onSelectWindow} />
               </div>
             ) : null}
@@ -299,8 +299,8 @@ export function Desktop({
                       ? getWindowSize(windowType, windowAreaSize.width, windowAreaSize.height)
                       : null;
                   const wrapperClassName = windowState.isMaximized
-                    ? "absolute inset-0 max-md:inset-0"
-                    : "absolute min-h-0 max-md:inset-0 max-md:h-full max-md:w-full";
+                    ? "absolute inset-0"
+                    : "absolute min-h-0";
                   const clampedPosition = clampPosition(
                     windowType,
                     windowState.x,
@@ -325,7 +325,7 @@ export function Desktop({
                       key={windowType}
                       className={`${wrapperClassName} ${
                         isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
-                      } max-md:!inset-0 max-md:!h-full max-md:!w-full max-md:!left-0 max-md:!top-0`}
+                      } max-md:!inset-x-0 max-md:!top-0 max-md:!bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:!w-full`}
                       ref={(node) => {
                         windowWrapperRefs.current[windowType] = node;
                       }}
