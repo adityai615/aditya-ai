@@ -243,7 +243,7 @@ export function AgentWindow() {
   const [hasRoasted, setHasRoasted] = useState(false);
   const [chatProvider, setChatProvider] = useState<ChatModelProvider>("gemini");
   const visitorInfoRef = useRef<VisitorClientInfo | null>(null);
-  const scrollAnchorRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const composerRef = useRef<HTMLElement>(null);
 
@@ -309,7 +309,9 @@ export function AgentWindow() {
   }, []);
 
   useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
   }, [messages, isLoading]);
 
   useEffect(() => {
@@ -350,9 +352,6 @@ export function AgentWindow() {
     setMessages(nextMessages);
     setDraft("");
     setIsLoading(true);
-    requestAnimationFrame(() => {
-      dismissComposerFocus();
-    });
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -430,9 +429,13 @@ export function AgentWindow() {
     void sendMessage(draft);
   };
 
-  const dismissComposerFocus = () => {
-    textareaRef.current?.blur();
-    publishAgentSession({ isComposerFocused: false });
+  const resetMobileViewportScroll = () => {
+    if (!window.matchMedia("(max-width: 767px)").matches) {
+      return;
+    }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   const handleComposerBlur = () => {
@@ -442,6 +445,7 @@ export function AgentWindow() {
         return;
       }
       publishAgentSession({ isComposerFocused: false });
+      resetMobileViewportScroll();
     }, 0);
   };
 
@@ -546,7 +550,10 @@ export function AgentWindow() {
         }
       `}</style>
 
-      <section className="agent-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-6 sm:py-5">
+      <section
+        ref={scrollContainerRef}
+        className="agent-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-6 sm:py-5"
+      >
         {!hasStartedChat ? (
           <div className="mx-auto flex w-full max-w-[760px] flex-col items-center px-1 text-center max-md:gap-3 max-md:pt-2 md:h-full md:justify-center md:gap-6">
             <Avatar size="lg" />
@@ -588,7 +595,6 @@ export function AgentWindow() {
             ))}
 
             {isLoading ? <ThinkingIndicator /> : null}
-            <div ref={scrollAnchorRef} />
           </div>
         )}
       </section>

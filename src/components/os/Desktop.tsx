@@ -68,10 +68,8 @@ export function Desktop({
   const hideMobileTabBar =
     !mobileHomeActive && activeWindow === "agent" && isAgentComposerFocused;
 
-  const getMobileWindowBottomClass = (windowType: WindowType) =>
-    windowType === "agent" && isAgentComposerFocused
-      ? "max-md:!bottom-0"
-      : "max-md:!bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]";
+  const getMobileWindowBottomClass = () =>
+    "max-md:!bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]";
 
   const getWindowSize = (
     windowType: WindowType,
@@ -351,7 +349,7 @@ export function Desktop({
                       key={windowType}
                       className={`${wrapperClassName} ${
                         isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
-                      } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${getMobileWindowBottomClass(windowType)}`}
+                      } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${getMobileWindowBottomClass()}`}
                       ref={(node) => {
                         windowWrapperRefs.current[windowType] = node;
                       }}
