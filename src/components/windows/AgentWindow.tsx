@@ -297,7 +297,7 @@ export function AgentWindow() {
 
   useEffect(() => {
     return () => {
-      publishAgentSession({ hasDraft: false });
+      publishAgentSession({ hasDraft: false, isComposerFocused: false });
     };
   }, []);
 
@@ -576,6 +576,15 @@ export function AgentWindow() {
               value={draft}
               maxLength={MAX_INPUT_LENGTH}
               onChange={(event) => setDraft(event.target.value.slice(0, MAX_INPUT_LENGTH))}
+              onFocus={() => {
+                publishAgentSession({ isComposerFocused: true });
+                requestAnimationFrame(() => {
+                  textareaRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                });
+              }}
+              onBlur={() => {
+                publishAgentSession({ isComposerFocused: false });
+              }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();
