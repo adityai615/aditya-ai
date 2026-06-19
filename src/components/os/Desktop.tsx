@@ -290,11 +290,7 @@ export function Desktop({
 
           <div
             ref={windowAreaRef}
-            className={`relative min-h-0 flex-1 overflow-hidden ${
-              hideMobileTabBar
-                ? ""
-                : "max-md:pb-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]"
-            }`}
+            className="relative min-h-0 flex-1 overflow-hidden"
           >
             {mobileHomeActive ? (
               <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">

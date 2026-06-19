@@ -342,6 +342,8 @@ export function AgentWindow() {
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setDraft("");
+    textareaRef.current?.blur();
+    publishAgentSession({ isComposerFocused: false });
     setIsLoading(true);
 
     const controller = new AbortController();
