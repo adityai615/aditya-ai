@@ -245,7 +245,6 @@ export function AgentWindow() {
   const visitorInfoRef = useRef<VisitorClientInfo | null>(null);
   const scrollContainerRef = useRef<HTMLElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const composerRef = useRef<HTMLElement>(null);
 
   const canSend =
     draft.trim().length > 0 && draft.length <= MAX_INPUT_LENGTH && !isLoading;
@@ -304,7 +303,7 @@ export function AgentWindow() {
 
   useEffect(() => {
     return () => {
-      publishAgentSession({ hasDraft: false, isComposerFocused: false });
+      publishAgentSession({ hasDraft: false });
     };
   }, []);
 
@@ -427,26 +426,6 @@ export function AgentWindow() {
 
   const handleSubmit = () => {
     void sendMessage(draft);
-  };
-
-  const resetMobileViewportScroll = () => {
-    if (!window.matchMedia("(max-width: 767px)").matches) {
-      return;
-    }
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  };
-
-  const handleComposerBlur = () => {
-    window.setTimeout(() => {
-      const active = document.activeElement;
-      if (composerRef.current?.contains(active)) {
-        return;
-      }
-      publishAgentSession({ isComposerFocused: false });
-      resetMobileViewportScroll();
-    }, 0);
   };
 
   return (
@@ -600,7 +579,6 @@ export function AgentWindow() {
       </section>
 
       <section
-        ref={composerRef}
         className="agent-composer relative z-10 shrink-0 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5"
       >
         <div className="agent-composer-fade" aria-hidden="true" />
@@ -611,10 +589,6 @@ export function AgentWindow() {
               value={draft}
               maxLength={MAX_INPUT_LENGTH}
               onChange={(event) => setDraft(event.target.value.slice(0, MAX_INPUT_LENGTH))}
-              onFocus={() => {
-                publishAgentSession({ isComposerFocused: true });
-              }}
-              onBlur={handleComposerBlur}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();

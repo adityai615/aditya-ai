@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
-import { getAgentSessionSnapshot, subscribeAgentSession } from "@/lib/agent-session";
 import { DesktopIcons } from "./DesktopIcons";
 import { MobileHome } from "./MobileHome";
 import { MobileTabBar } from "./MobileTabBar";
@@ -61,14 +60,8 @@ export function Desktop({
   const windowWrapperRefs = useRef<Partial<Record<WindowType, HTMLDivElement | null>>>(
     {},
   );
-  const [isAgentComposerFocused, setIsAgentComposerFocused] = useState(
-    () => getAgentSessionSnapshot().isComposerFocused,
-  );
 
-  const hideMobileTabBar =
-    !mobileHomeActive && activeWindow === "agent" && isAgentComposerFocused;
-
-  const getMobileWindowBottomClass = () =>
+  const mobileWindowBottomClass =
     "max-md:!bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]";
 
   const getWindowSize = (
@@ -161,20 +154,6 @@ export function Desktop({
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
-
-  useEffect(() => {
-    return subscribeAgentSession(() => {
-      setIsAgentComposerFocused(getAgentSessionSnapshot().isComposerFocused);
-      requestAnimationFrame(() => {
-        const container = windowAreaRef.current;
-        if (!container) return;
-        setWindowAreaSize({
-          width: container.clientWidth,
-          height: container.clientHeight,
-        });
-      });
-    });
   }, []);
 
   useEffect(() => {
@@ -296,7 +275,7 @@ export function Desktop({
 
           <div
             ref={windowAreaRef}
-            className="relative min-h-0 flex-1 overflow-hidden"
+            className="relative min-h-0 flex-1 overflow-hidden max-md:bg-[var(--os-background)]"
           >
             {mobileHomeActive ? (
               <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
@@ -349,7 +328,7 @@ export function Desktop({
                       key={windowType}
                       className={`${wrapperClassName} ${
                         isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
-                      } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${getMobileWindowBottomClass()}`}
+                      } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${mobileWindowBottomClass}`}
                       ref={(node) => {
                         windowWrapperRefs.current[windowType] = node;
                       }}
@@ -394,7 +373,6 @@ export function Desktop({
       <MobileTabBar
         activeWindow={mobileHomeActive ? null : activeWindow}
         onSelect={onSelectWindow}
-        hidden={hideMobileTabBar}
       />
     </section>
   );

@@ -29,7 +29,7 @@ export function Window({
 }: WindowProps) {
   return (
     <section
-      className={`group flex h-full w-full min-h-0 flex-col bg-[var(--os-surface)] backdrop-blur-2xl transition-shadow duration-200 max-md:rounded-none max-md:border-0 max-md:shadow-none md:border-[0.5px] ${
+      className={`group flex h-full w-full min-h-0 flex-col bg-[var(--os-surface)] transition-shadow duration-200 max-md:rounded-none max-md:border-0 max-md:bg-[var(--os-background)] max-md:shadow-none md:border-[0.5px] md:backdrop-blur-2xl ${
         isMaximized ? "md:rounded-[8px]" : "md:rounded-[12px]"
       } ${
         isFocused

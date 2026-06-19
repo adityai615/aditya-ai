@@ -1,13 +1,11 @@
 export type AgentSessionSnapshot = {
   hasStartedChat: boolean;
   hasDraft: boolean;
-  isComposerFocused: boolean;
 };
 
 let snapshot: AgentSessionSnapshot = {
   hasStartedChat: false,
   hasDraft: false,
-  isComposerFocused: false,
 };
 
 const listeners = new Set<() => void>();

@@ -10,7 +10,6 @@ import { MobileMoreSheet } from "./MobileMoreSheet";
 type MobileTabBarProps = {
   activeWindow: WindowType | null;
   onSelect: (window: WindowType) => void;
-  hidden?: boolean;
 };
 
 const primaryApps = MOBILE_PRIMARY_TAB_APPS.map(
@@ -21,7 +20,7 @@ const overflowAppIds = APP_DEFINITIONS.filter(
   (app) => !MOBILE_PRIMARY_TAB_APPS.includes(app.id as (typeof MOBILE_PRIMARY_TAB_APPS)[number]),
 ).map((app) => app.id);
 
-export function MobileTabBar({ activeWindow, onSelect, hidden = false }: MobileTabBarProps) {
+export function MobileTabBar({ activeWindow, onSelect }: MobileTabBarProps) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const isOverflowActive =
     activeWindow !== null && overflowAppIds.includes(activeWindow);
@@ -34,11 +33,8 @@ export function MobileTabBar({ activeWindow, onSelect, hidden = false }: MobileT
   return (
     <>
       <nav
-        className={`fixed inset-x-0 bottom-0 z-40 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] pb-[env(safe-area-inset-bottom)] md:hidden ${
-          hidden ? "pointer-events-none translate-y-full" : "translate-y-0"
-        }`}
+        className="fixed inset-x-0 bottom-0 z-40 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="App navigation"
-        aria-hidden={hidden}
       >
         <div
           className="flex items-center justify-around px-0.5"
