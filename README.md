@@ -157,7 +157,7 @@ The live deployment: **[https://adityajain-os.vercel.app/](https://adityajain-os
 - **Website:** [adityajain-os.vercel.app](https://adityajain-os.vercel.app/)
 - **LinkedIn:** [linkedin.com/in/adityajain-ai](https://linkedin.com/in/adityajain-ai)
 - **GitHub:** [github.com/adityai615](https://github.com/adityai615)
-- **Email:** adityajain.dev.ai11@gmail.com
+- **Email:** aditya.jain.codes@gmail.com
 
 ---
 
