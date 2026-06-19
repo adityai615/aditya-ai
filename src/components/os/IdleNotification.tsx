@@ -16,7 +16,7 @@ import type { WindowType } from "./types";
 
 const SESSION_KEY = "hasShownIdleNotification";
 const AUTO_DISMISS_MS = 11000;
-const IDLE_MS = 5000;
+const IDLE_MS = 8000;
 const IDLE_CHECK_MS = 500;
 const MOUSE_MOVE_THRESHOLD_PX = 24;
 
