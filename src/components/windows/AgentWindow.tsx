@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import { Briefcase, ChevronDown, Code2, Layers, UserCheck } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -41,6 +41,10 @@ const REQUEST_TIMEOUT_MS = 20_000;
 const ERROR_MESSAGE = "Connection hiccup on my end. Try again in a moment?";
 const TIMEOUT_MESSAGE = "That took longer than expected — mind trying again?";
 const RATE_LIMIT_MESSAGE = "You're sending messages a bit fast — try again in a few minutes.";
+
+function keepComposerFocus(event: PointerEvent) {
+  event.preventDefault();
+}
 
 type ChatMessage = {
   id: string;
@@ -180,6 +184,7 @@ function ModelProviderSelect({
     <div ref={rootRef} className="relative shrink-0 self-end">
       <button
         type="button"
+        onPointerDown={keepComposerFocus}
         onClick={() => setOpen((previous) => !previous)}
         disabled={disabled}
         aria-haspopup="listbox"
@@ -208,6 +213,7 @@ function ModelProviderSelect({
               <li key={provider} role="option" aria-selected={isSelected}>
                 <button
                   type="button"
+                  onPointerDown={keepComposerFocus}
                   onClick={() => {
                     onChange(provider);
                     setOpen(false);
@@ -239,6 +245,7 @@ export function AgentWindow() {
   const visitorInfoRef = useRef<VisitorClientInfo | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const composerRef = useRef<HTMLElement>(null);
 
   const canSend =
     draft.trim().length > 0 && draft.length <= MAX_INPUT_LENGTH && !isLoading;
@@ -342,9 +349,10 @@ export function AgentWindow() {
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setDraft("");
-    textareaRef.current?.blur();
-    publishAgentSession({ isComposerFocused: false });
     setIsLoading(true);
+    requestAnimationFrame(() => {
+      dismissComposerFocus();
+    });
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -420,6 +428,21 @@ export function AgentWindow() {
 
   const handleSubmit = () => {
     void sendMessage(draft);
+  };
+
+  const dismissComposerFocus = () => {
+    textareaRef.current?.blur();
+    publishAgentSession({ isComposerFocused: false });
+  };
+
+  const handleComposerBlur = () => {
+    window.setTimeout(() => {
+      const active = document.activeElement;
+      if (composerRef.current?.contains(active)) {
+        return;
+      }
+      publishAgentSession({ isComposerFocused: false });
+    }, 0);
   };
 
   return (
@@ -544,6 +567,7 @@ export function AgentWindow() {
                   <button
                     key={suggestion.label}
                     type="button"
+                    onPointerDown={keepComposerFocus}
                     onClick={() => sendMessage(suggestion.label)}
                     disabled={isLoading}
                     className="agent-suggestion-chip text-ui group flex min-h-11 items-center gap-2.5 rounded-2xl px-4 py-2.5 text-left text-[12.5px] text-[var(--os-text)] disabled:cursor-not-allowed disabled:opacity-65 md:justify-center md:rounded-full md:px-5 md:text-center md:text-[13px]"
@@ -569,7 +593,10 @@ export function AgentWindow() {
         )}
       </section>
 
-      <section className="agent-composer relative z-10 shrink-0 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5">
+      <section
+        ref={composerRef}
+        className="agent-composer relative z-10 shrink-0 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-background)] px-3 py-2 sm:px-6 sm:py-3 md:py-3.5"
+      >
         <div className="agent-composer-fade" aria-hidden="true" />
         <div className="mx-auto w-full max-w-[860px]">
           <div className="agent-composer-pill flex items-end gap-1.5 rounded-2xl bg-[var(--os-surface)] px-3 py-2 sm:rounded-3xl sm:gap-2 sm:px-3.5 sm:py-2 md:px-4 md:py-2.5">
@@ -580,13 +607,8 @@ export function AgentWindow() {
               onChange={(event) => setDraft(event.target.value.slice(0, MAX_INPUT_LENGTH))}
               onFocus={() => {
                 publishAgentSession({ isComposerFocused: true });
-                requestAnimationFrame(() => {
-                  textareaRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-                });
               }}
-              onBlur={() => {
-                publishAgentSession({ isComposerFocused: false });
-              }}
+              onBlur={handleComposerBlur}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();
@@ -606,6 +628,7 @@ export function AgentWindow() {
             />
             <button
               type="button"
+              onPointerDown={keepComposerFocus}
               onClick={handleSubmit}
               disabled={!canSend}
               aria-label="Send message"

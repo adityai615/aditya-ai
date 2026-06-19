@@ -34,7 +34,7 @@ export function MobileTabBar({ activeWindow, onSelect, hidden = false }: MobileT
   return (
     <>
       <nav
-        className={`fixed inset-x-0 bottom-0 z-40 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] pb-[env(safe-area-inset-bottom)] transition-transform duration-200 ease-out md:hidden ${
+        className={`fixed inset-x-0 bottom-0 z-40 border-t-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] pb-[env(safe-area-inset-bottom)] md:hidden ${
           hidden ? "pointer-events-none translate-y-full" : "translate-y-0"
         }`}
         aria-label="App navigation"

@@ -168,6 +168,14 @@ export function Desktop({
   useEffect(() => {
     return subscribeAgentSession(() => {
       setIsAgentComposerFocused(getAgentSessionSnapshot().isComposerFocused);
+      requestAnimationFrame(() => {
+        const container = windowAreaRef.current;
+        if (!container) return;
+        setWindowAreaSize({
+          width: container.clientWidth,
+          height: container.clientHeight,
+        });
+      });
     });
   }, []);
 
