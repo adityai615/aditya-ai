@@ -160,3 +160,13 @@ body {
   pointer-events: none;
   animation: like-particle-burst 700ms ease-out forwards;
 }
+
+.about-section-nav {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.about-section-nav::-webkit-scrollbar {
+  display: none;
+}

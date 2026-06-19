@@ -4,7 +4,6 @@
  */
 
 import type { ProjectItem } from "@/lib/portfolio-context";
-// ProjectItem is a type-only import — no runtime circular dependency.
 
 export type ProjectLinks = {
   github?: string;
@@ -34,37 +33,47 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    id: "luminare-voice-labs",
+    id: "luminare-ai",
     number: "01",
-    name: "Luminare Voice Labs",
+    name: "Luminare AI",
     category: "AI Voice CRM",
     description:
-      "A production-focused voice operations platform built to run outbound AI calling workflows with real-time intelligence, analytics, and control.",
-    techStack: ["FastAPI", "LiveKit", "Twilio", "Sarvam AI", "React", "WebSockets"],
+      "AI-powered outbound voice agent for hotel relationship management — automated PSTN calls with real-time STT, LLM reasoning, and TTS, plus a JWT-protected operator dashboard.",
+    techStack: [
+      "FastAPI",
+      "LiveKit",
+      "Twilio SIP",
+      "Sarvam AI",
+      "React",
+      "WebSockets",
+      "SQLAlchemy",
+    ],
     keyFeatures: [
-      "JWT-authenticated operator access",
-      "Call analytics and session visibility",
-      "Real-time call state updates",
-      "Prompt + routing control workflows",
+      "Outbound AI voice calls via Twilio SIP → LiveKit → agent worker",
+      "Sarvam STT → LLM → TTS pipeline with think-tag stripping",
+      "Browser Voice Labs demo over WebSocket (PCM16 + MPEG playback)",
+      "Churn risk analysis and tiered loyalty discount workflows",
     ],
     achievements: [
-      "Real outbound AI phone calls",
-      "STT → LLM → TTS pipeline",
-      "Voice CRM dashboard",
-      "WebSocket voice streaming",
+      "Real outbound PSTN AI phone calls",
+      "Multilingual en-IN / hi-IN voice support",
+      "JWT-secured REST + WebSocket APIs",
+      "Call recording and admin dashboard",
     ],
-    links: {},
+    links: {
+      github: "https://github.com/LUMINARE-AI/Conversation-AI-Hotel-RM",
+    },
     details: {
       problem:
-        "Sales and support teams needed a scalable way to automate high-volume calls without losing context, call quality, or measurable outcomes.",
+        "Hotels needed a scalable way to proactively check in with guests, surface churn risk, and offer loyalty incentives — without losing call quality or operational visibility.",
       architecture:
-        "Streaming pipeline architecture with telephony ingress, real-time transcription, LLM orchestration, TTS response generation, and dashboard events over WebSockets.",
+        "Customer Phone ← PSTN ← Twilio SIP Trunk ← LiveKit Cloud (WebRTC room) ← AI Agent worker (Python). Flow: FastAPI creates room → dispatches agent → places SIP call → caller audio → Sarvam STT → Sarvam LLM → Sarvam TTS → audio back through LiveKit → Twilio → phone. Browser Voice Labs uses WebSocket (/api/v1/stream/web/ws) with the same Sarvam pipeline for in-browser two-way voice.",
       techStackSummary:
-        "FastAPI services, LiveKit media transport, Twilio telephony, Sarvam AI models, React operations UI, JWT auth.",
+        "FastAPI + Uvicorn backend, React 19 + Vite + Tailwind dashboard, LiveKit agents for real-time audio, Twilio SIP for PSTN, Sarvam AI (saaras STT, sarvam-m LLM, bulbul TTS), SQLite/SQLAlchemy persistence.",
       businessImpact:
-        "Reduced manual calling overhead and enabled faster outbound cycles with measurable call outcomes.",
+        "Enabled automated guest relationship calls with personalized loyalty offers and measurable engagement scoring for retention teams.",
       implementationNotes:
-        "Designed for low-latency turn-taking, resilient streaming sessions, and observable event logs for production debugging.",
+        "Built for low-latency turn-taking, goodbye detection with automatic SIP hangup, session limits on browser demos, and robust handling of LLM reasoning output.",
     },
   },
   {
@@ -73,26 +82,28 @@ export const PROJECTS: Project[] = [
     name: "Kalakrati Imaginations",
     category: "Production Ecommerce Platform",
     description:
-      "An end-to-end ecommerce system with reliable payment, logistics, and post-purchase automation flows designed for real commerce operations.",
+      "A live gifting and ecommerce storefront for curated hampers, festive decor, and wedding collections — with payments, shipping, admin ops, and transactional email automation.",
     techStack: ["Next.js", "MongoDB", "Razorpay", "Delhivery", "Cloudinary", "Resend"],
     keyFeatures: [
-      "Variant-aware product management",
-      "Order state and fulfillment visibility",
-      "SEO-oriented page architecture",
-      "Transactional messaging automation",
+      "Variant-aware catalog and category navigation",
+      "Razorpay checkout with order state tracking",
+      "Delhivery fulfillment and delivery ETA flows",
+      "SEO-oriented pages and Resend email automation",
     ],
     achievements: [
-      "Production deployment",
+      "Production deployment at kalakratiimaginations.com",
       "Payments and shipping workflows",
       "Admin dashboard",
       "Email automation",
     ],
-    links: {},
+    links: {
+      liveDemo: "https://www.kalakratiimaginations.com/",
+    },
     details: {
       problem:
         "The business required a production-ready storefront that could support catalog complexity, operational fulfillment, and customer communication at scale.",
       architecture:
-        "Server-rendered storefront with API-backed admin workflows, integrated payment state machine, shipping event sync, and media delivery pipeline.",
+        "Next.js server-rendered storefront → MongoDB product/order data → Razorpay payment state machine → Delhivery logistics sync → Cloudinary media CDN → Resend for transactional email. Admin workflows run on the same API layer for catalog, orders, and fulfillment visibility.",
       techStackSummary:
         "Next.js application layer, MongoDB data model, Razorpay transactions, Delhivery logistics, Cloudinary media pipeline, Resend notification service.",
       businessImpact:
@@ -107,13 +118,13 @@ export const PROJECTS: Project[] = [
     name: "Varta AI",
     category: "WhatsApp AI Agent Platform",
     description:
-      "A multi-tenant WhatsApp AI platform enabling businesses to run contextual assistants with retrieval, workflows, and managed conversations.",
-    techStack: ["FastAPI", "React", "LangChain", "FAISS", "Groq", "Twilio"],
+      "Multi-tenant WhatsApp AI platform where businesses connect via Twilio, upload knowledge bases, and run LangChain-powered assistants with RAG, booking flows, and conversation logs.",
+    techStack: ["FastAPI", "React", "LangChain", "FAISS", "Chroma", "Groq", "Twilio"],
     keyFeatures: [
-      "Knowledge base management",
-      "Booking and workflow execution",
-      "Tenant-scoped conversation controls",
-      "Retrieval quality tuning",
+      "Twilio WhatsApp webhook with TwiML responses",
+      "RAG over per-tenant business.txt via FAISS + Chroma",
+      "Multi-business SaaS dashboard with KB upload and chat logs",
+      "Live in-browser WhatsApp simulation before going live",
     ],
     achievements: [
       "WhatsApp AI assistant",
@@ -121,18 +132,20 @@ export const PROJECTS: Project[] = [
       "RAG architecture",
       "Conversation management",
     ],
-    links: {},
+    links: {
+      github: "https://github.com/adityai615/varta-ai-whatsapp-agent",
+    },
     details: {
       problem:
         "Businesses needed a deployable assistant channel on WhatsApp that could answer domain questions and execute workflow actions consistently.",
       architecture:
-        "Tenant-aware orchestration layer with ingestion and embedding pipeline, FAISS retrieval, LLM response generation, and Twilio message transport.",
+        "User → WhatsApp → Twilio → FastAPI webhook → LangChain agent → RAG (FAISS/Chroma over uploaded KB) → Groq LLM → TwiML XML response → Twilio → WhatsApp. React dashboard manages tenants, KB upload/edit, and message history over the same REST API.",
       techStackSummary:
-        "FastAPI backend services, React control panel, LangChain pipelines, FAISS vector index, Groq inference, Twilio WhatsApp integration.",
+        "FastAPI backend services, React + Vite control panel, LangChain pipelines, FAISS vector index + Chroma runtime, Groq inference, Twilio WhatsApp integration, SQLite/PostgreSQL.",
       businessImpact:
         "Accelerated response time for end-users while reducing repetitive support work across participating businesses.",
       implementationNotes:
-        "Focused on retrieval consistency, workflow predictability, and clear operational controls for non-technical teams.",
+        "Focused on retrieval consistency, workflow predictability, TwiML-safe output escaping, and clear operational controls for non-technical teams.",
     },
   },
   {
@@ -141,13 +154,13 @@ export const PROJECTS: Project[] = [
     name: "3D Product Configurator",
     category: "Interactive 3D Commerce",
     description:
-      "A commerce-grade 3D customization system where users can personalize products and generate 3D assets from text or image inputs.",
+      "Commerce-grade 3D customization system where users personalize products in the browser and generate 3D assets from text or image inputs via AI pipelines.",
     techStack: ["React Three Fiber", "Node.js", "MongoDB", "AWS", "Tripo3D", "Gemini AI"],
     keyFeatures: [
-      "Live material and component customization",
-      "AI-assisted 3D asset generation",
-      "Persisted configuration states",
-      "Personalized product visualization",
+      "Live material and component customization in WebGL",
+      "AI-assisted text-to-3D and image-to-3D generation",
+      "Persisted configuration states across sessions",
+      "Split Frontend / Backend architecture for scalable asset handling",
     ],
     achievements: [
       "Real-time 3D customization",
@@ -155,12 +168,14 @@ export const PROJECTS: Project[] = [
       "Text-to-3D and Image-to-3D",
       "Product personalization",
     ],
-    links: {},
+    links: {
+      github: "https://github.com/LUMINARE-AI/3D-product-configurator",
+    },
     details: {
       problem:
         "Modern commerce experiences needed richer product interaction than static imagery, especially for configurable products.",
       architecture:
-        "Client-side 3D renderer with backend generation orchestration, asset persistence, and cloud-backed delivery for model variants.",
+        "React Three Fiber client renderer for live 3D preview and customization → Node.js backend orchestrates Tripo3D and Gemini AI generation jobs → MongoDB stores product configs → AWS hosts and delivers generated model assets to the storefront.",
       techStackSummary:
         "React Three Fiber rendering layer, Node.js services, MongoDB storage, AWS asset hosting, Tripo3D and Gemini AI generation workflows.",
       businessImpact:
@@ -175,7 +190,7 @@ export const PROJECTS: Project[] = [
     name: "Aditya OS",
     category: "Interactive Developer Portfolio",
     description:
-      "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Built as an interactive desktop environment with draggable windows, a live AI agent, real-time Spotify integration, and a global like counter.",
+      "A custom fictional OS-themed developer portfolio — the very site you're looking at right now. Draggable windows, live AI assistant, Spotify chart, and a global like counter.",
     techStack: [
       "Next.js 16",
       "TypeScript",
@@ -189,26 +204,65 @@ export const PROJECTS: Project[] = [
       "Working AI assistant (Gemini + Groq with automatic fallback)",
       'Live "Top 50 India" Spotify chart',
       "Multi-tap like system with real-time animations",
-      "Fully responsive mobile experience with a separate tab-based navigation layout",
+      "Fully responsive mobile experience with tab-based navigation",
     ],
     achievements: [
-      "Working AI assistant (Gemini + Groq)",
-      'Live "Top 50 India" Spotify chart',
-      "Multi-tap like system with real-time animations",
-      "Fully responsive mobile tab-based navigation",
+      "Production deployment on Vercel",
+      "Multi-turn AI chat with rate limiting",
+      "Live Spotify + GitHub API integrations",
+      "Desktop and mobile shell layouts",
     ],
-    links: {},
+    links: {
+      github: "https://github.com/adityai615/adityaos",
+      liveDemo: "https://adityajain-os.vercel.app/",
+    },
     details: {
       problem:
         "A traditional portfolio résumé page couldn't capture the depth of Aditya's full-stack and AI work — visitors needed an engaging, memorable way to explore projects and interact directly.",
       architecture:
-        "Next.js app with a desktop-style window manager, server-side API routes for AI chat, Spotify, likes (Upstash Redis), and client-side state for draggable windows and mobile tab navigation.",
+        "Next.js App Router shell (Desktop + MobileTabBar) → per-app window components → API routes (/api/chat, /api/likes, /api/spotify, /api/github, /api/wallpapers). AI chat uses Vercel AI SDK with Gemini/Groq fallback; likes and rate limits on Upstash Redis; portfolio knowledge synced from src/lib/projects.ts.",
       techStackSummary:
-        "Next.js 16, TypeScript, Tailwind CSS, Gemini API, Groq API, Upstash Redis for the global like counter, Spotify Web API for live chart data.",
+        "Next.js 16, TypeScript, Tailwind CSS, Gemini API, Groq API, Upstash Redis for likes + chat rate limits, Spotify Web API for live chart data.",
       businessImpact:
         "Delivers an immersive, production-deployed showcase of full-stack and AI capabilities that visitors can explore interactively.",
       implementationNotes:
         "Built as a self-referential meta-project — the portfolio itself is the demo, with real integrations for AI, music, and social engagement.",
+    },
+  },
+  {
+    id: "flysmart",
+    number: "06",
+    name: "FlySmart",
+    category: "Flight Data Automation",
+    description:
+      "Python scraper that collects multi-route flight data from MakeMyTrip in one browser session, deduplicates results, and exports a unified master CSV for analysis.",
+    techStack: ["Python", "Selenium", "undetected-chromedriver", "pandas", "ChromeDriver"],
+    keyFeatures: [
+      "Multi-route scraping in a single browser session",
+      "undetected_chromedriver for reduced fingerprinting",
+      "React/overlay-aware clicks with explicit waits and JS fallbacks",
+      "Deduplicated CSV export with search_origin / search_destination tags",
+    ],
+    achievements: [
+      "Multi-city route batching",
+      "MakeMyTrip classic search automation",
+      "Stale-element resilient card parsing",
+      "Master CSV at data/all_flights.csv",
+    ],
+    links: {
+      github: "https://github.com/adityai615/FlySmart",
+    },
+    details: {
+      problem:
+        "Comparing fares across multiple city pairs manually on MakeMyTrip was slow and error-prone — a repeatable scraper was needed to merge route results into one dataset.",
+      architecture:
+        "main.py loops routes from routes.py → BrowserManager starts undetected Chrome → FlightScraper navigates MakeMyTrip (classic search, city autocomplete, date pick) → scrolls listings and parses cards via MakeMyTripSelectors → utils tags rows with route metadata → pandas merges deduplicated rows into data/all_flights.csv.",
+      techStackSummary:
+        "Python 3.10+, undetected_chromedriver, Selenium ActionChains/JS click fallbacks, modular scraper/ package (browser_manager, flight_scraper, selectors, utils), pandas CSV export.",
+      businessImpact:
+        "Automated fare collection across routes for personal analysis and learning workflows without manual copy-paste.",
+      implementationNotes:
+        "Tuned timeouts for multi-route sessions (form_timeout, results_timeout), city name normalization via CITY_MAPPING, and safe WebDriver teardown on Windows.",
     },
   },
 ];
@@ -225,3 +279,7 @@ export function toProjectItem(project: Project): ProjectItem {
 }
 
 export const PROJECTS_FOR_AGENT: ProjectItem[] = PROJECTS.map(toProjectItem);
+
+export function projectHasLinks(links: ProjectLinks) {
+  return Boolean(links.github || links.liveDemo);
+}

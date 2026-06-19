@@ -17,7 +17,7 @@ import { detectVisitorClient, type VisitorClientInfo } from "@/lib/visitor-clien
 
 const suggestions = [
   {
-    label: "How did he build Luminare Voice Labs?",
+    label: "What is Aditya OS?",
     icon: Code2,
   },
   {
