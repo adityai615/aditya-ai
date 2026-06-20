@@ -29,31 +29,32 @@ export function Window({
 }: WindowProps) {
   return (
     <section
-      className={`group flex h-full w-full min-h-0 flex-col bg-[var(--os-surface)] transition-shadow duration-200 max-md:rounded-none max-md:border-0 max-md:bg-[var(--os-background)] max-md:shadow-none md:border-[0.5px] md:backdrop-blur-2xl ${
-        isMaximized ? "md:rounded-[8px]" : "md:rounded-[12px]"
+      className={`group os-window-enter flex h-full w-full min-h-0 flex-col bg-[var(--os-surface)] transition-shadow duration-200 max-md:rounded-none max-md:border-0 max-md:bg-[var(--os-background)] max-md:shadow-none md:border-[0.5px] md:backdrop-blur-2xl ${
+        isMaximized ? "md:rounded-[10px]" : "md:rounded-[14px]"
       } ${
         isFocused
-          ? "md:border-[var(--os-border-strong)] md:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.45),0_0_0_0.5px_rgba(255,255,255,0.06)_inset]"
-          : "md:border-[var(--os-border)] md:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] md:opacity-[0.97]"
+          ? "md:border-[var(--os-border-strong)] md:shadow-[0_24px_70px_-12px_rgba(0,0,0,0.55),0_8px_24px_-8px_rgba(0,0,0,0.4),0_0_0_0.5px_rgba(255,255,255,0.08)_inset]"
+          : "md:border-[var(--os-border)] md:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.35)] md:opacity-[0.96]"
       } overflow-hidden`}
       onMouseDown={onFocus}
       style={{ zIndex }}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent md:block" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-px bg-gradient-to-r from-transparent via-white/20 to-transparent md:block" />
 
       <header
         className="relative hidden h-10 shrink-0 cursor-move items-center border-b-[0.5px] border-[var(--os-border)] bg-[var(--os-titlebar)] px-4 md:flex"
         onMouseDown={onTitleBarMouseDown}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-[9px]">
           <button
             type="button"
             onClick={onClose}
             onMouseDown={(event) => event.stopPropagation()}
-            className="group/dot relative h-3 w-3 rounded-full bg-gradient-to-b from-[#ff6b61] to-[#e0443e] ring-1 ring-black/10 transition-transform active:scale-90"
+            className="group/dot relative h-[13px] w-[13px] rounded-full bg-gradient-to-b from-[#ff7a6e] to-[#dd3b34] ring-[0.5px] ring-inset ring-black/15 transition-transform duration-100 active:scale-90"
+            style={{ boxShadow: "0 1px 1px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.35)" }}
             aria-label="close window"
           >
-            <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-[#7a0000] opacity-0 transition-opacity group-hover/dot:opacity-70">
+            <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold leading-none text-[#7a0000] opacity-0 transition-opacity group-hover/dot:opacity-80">
               ×
             </span>
           </button>
@@ -61,10 +62,11 @@ export function Window({
             type="button"
             onClick={onMinimize}
             onMouseDown={(event) => event.stopPropagation()}
-            className="group/dot relative h-3 w-3 rounded-full bg-gradient-to-b from-[#ffc02e] to-[#e0a106] ring-1 ring-black/10 transition-transform active:scale-90"
+            className="group/dot relative h-[13px] w-[13px] rounded-full bg-gradient-to-b from-[#ffcc4d] to-[#dd9c08] ring-[0.5px] ring-inset ring-black/15 transition-transform duration-100 active:scale-90"
+            style={{ boxShadow: "0 1px 1px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.35)" }}
             aria-label="minimize window"
           >
-            <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-[#7a5400] opacity-0 transition-opacity group-hover/dot:opacity-70">
+            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold leading-none text-[#7a5400] opacity-0 transition-opacity group-hover/dot:opacity-80">
               −
             </span>
           </button>
@@ -72,10 +74,11 @@ export function Window({
             type="button"
             onClick={onMaximize}
             onMouseDown={(event) => event.stopPropagation()}
-            className="group/dot relative h-3 w-3 rounded-full bg-gradient-to-b from-[#34d058] to-[#1ca73e] ring-1 ring-black/10 transition-transform active:scale-90"
+            className="group/dot relative h-[13px] w-[13px] rounded-full bg-gradient-to-b from-[#3ce06a] to-[#16a83b] ring-[0.5px] ring-inset ring-black/15 transition-transform duration-100 active:scale-90"
+            style={{ boxShadow: "0 1px 1px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.35)" }}
             aria-label={isMaximized ? "restore window size" : "maximize window"}
           >
-            <span className="absolute inset-0 flex items-center justify-center text-[6px] font-bold text-[#0a4a16] opacity-0 transition-opacity group-hover/dot:opacity-70">
+            <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold leading-none text-[#0a4a16] opacity-0 transition-opacity group-hover/dot:opacity-80">
               ⤢
             </span>
           </button>

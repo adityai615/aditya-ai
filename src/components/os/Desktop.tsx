@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
-import { DesktopIcons } from "./DesktopIcons";
+import { Dock } from "./Dock";
 import { MobileHome } from "./MobileHome";
 import { MobileTabBar } from "./MobileTabBar";
 import type { WindowType } from "./types";
 import { WindowRenderer } from "../windows/WindowRenderer";
 import type { WallpaperMeta } from "./types";
 import { Window } from "./Window";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type DesktopProps = {
   wallpaper: string;
@@ -55,7 +54,6 @@ export function Desktop({
   const [draggingWindow, setDraggingWindow] = useState<WindowType | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [windowAreaSize, setWindowAreaSize] = useState({ width: 0, height: 0 });
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const windowAreaRef = useRef<HTMLDivElement>(null);
   const windowWrapperRefs = useRef<Partial<Record<WindowType, HTMLDivElement | null>>>(
     {},
@@ -88,14 +86,14 @@ export function Desktop({
 
     if (windowType === "resume") {
       return {
-        width: Math.min(1140, maxWidth),
-        height: Math.min(Math.round(containerHeight * 0.9), maxHeight),
+        width: Math.min(980, maxWidth),
+        height: Math.min(Math.round(containerHeight * 0.82), maxHeight),
       };
     }
 
     return {
-      width: Math.min(1280, maxWidth),
-      height: Math.min(Math.round(containerHeight * 0.92), maxHeight),
+      width: Math.min(1040, maxWidth),
+      height: Math.min(Math.round(containerHeight * 0.8), maxHeight),
     };
   };
 
@@ -214,9 +212,20 @@ export function Desktop({
       onBringToFront(windowType);
     };
 
+  // Dock hides whenever any open, non-minimized window is maximized —
+  // a maximized window already fills the screen, so the dock floating
+  // on top of it would just get in the way (and visually clash since
+  // the window now owns the full viewport).
+  const isAnyWindowMaximized = (Object.keys(windows ?? {}) as WindowType[]).some(
+    (windowType) => {
+      const windowState = windows?.[windowType];
+      return Boolean(windowState?.isOpen && !windowState.isMinimized && windowState.isMaximized);
+    },
+  );
+
   return (
     <section
-      className="flex min-h-0 flex-1"
+      className="relative flex min-h-0 flex-1"
       style={{
         backgroundColor: "var(--os-background)",
         backgroundImage: wallpaper ? `url('${wallpaper}')` : undefined,
@@ -226,149 +235,107 @@ export function Desktop({
       }}
     >
       <div className="mx-auto h-full min-h-0 w-full">
-        <div className="flex h-full min-h-0 flex-col md:flex-row">
-          <div
-            className={`relative z-30 hidden shrink-0 transition-[width] duration-300 ease-out md:block md:h-full ${
-              isSidebarCollapsed ? "md:w-[48px]" : "md:w-auto"
-            }`}
-          >
-            <aside
-              className={`h-full rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(0,0,0,0.35)] p-2 backdrop-blur-[20px] backdrop-saturate-[180%] transition-all duration-300 ease-out md:border-y-0 md:border-l-0 md:border-r md:border-r-[rgba(255,255,255,0.06)] md:rounded-none md:bg-[rgba(0,0,0,0.35)] ${
-                isSidebarCollapsed ? "md:px-1" : "md:pr-4"
-              }`}
-            >
-              <div className={isSidebarCollapsed ? "md:hidden" : ""}>
-                <DesktopIcons activeWindow={activeWindow} onSelect={onSelectWindow} />
-              </div>
-            </aside>
+        {/* Window area is now full-width: the dock floats over it at
+            the bottom instead of reserving a fixed-width left column. */}
+        <div
+          ref={windowAreaRef}
+          className="relative h-full min-h-0 flex-1 overflow-hidden"
+        >
+          {mobileHomeActive ? (
+            <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
+              <MobileHome onOpenApp={onSelectWindow} />
+            </div>
+          ) : null}
 
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed((previous) => !previous)}
-              className="group/toggle absolute top-1/2 right-0 z-50 hidden h-11 w-[22px] -translate-y-1/2 translate-x-1/2 cursor-pointer select-none flex-col items-center justify-center gap-0.5 rounded-full border border-[rgba(255,255,255,0.14)] bg-[linear-gradient(180deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.04)_100%)] text-[rgba(255,255,255,0.72)] shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-xl transition-all duration-200 ease-out hover:w-[24px] hover:border-[rgba(255,255,255,0.28)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0.08)_100%)] hover:text-white hover:shadow-[0_6px_24px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] active:scale-[0.97] md:flex"
-              aria-label={isSidebarCollapsed ? "Show desktop sidebar" : "Hide desktop sidebar"}
-              title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
-            >
-              <span
-                className="pointer-events-none h-px w-2 rounded-full bg-white/25 transition-colors group-hover/toggle:bg-white/40"
-                aria-hidden="true"
-              />
-              {isSidebarCollapsed ? (
-                <ChevronRight
-                  size={13}
-                  strokeWidth={2.25}
-                  className="pointer-events-none transition-transform duration-200 group-hover/toggle:translate-x-px"
-                />
-              ) : (
-                <ChevronLeft
-                  size={13}
-                  strokeWidth={2.25}
-                  className="pointer-events-none transition-transform duration-200 group-hover/toggle:-translate-x-px"
-                />
-              )}
-              <span
-                className="pointer-events-none h-px w-2 rounded-full bg-white/25 transition-colors group-hover/toggle:bg-white/40"
-                aria-hidden="true"
-              />
-            </button>
-          </div>
+          {(() => {
+            return (Object.keys(windows ?? {}) as WindowType[])
+              .filter((windowType) => {
+                const windowState = windows?.[windowType];
+                return Boolean(windowState?.isOpen && !windowState.isMinimized);
+              })
+              .map((windowType) => {
+                const windowState = windows?.[windowType];
+                if (!windowState) {
+                  return null;
+                }
 
-          <div
-            ref={windowAreaRef}
-            className="relative min-h-0 flex-1 overflow-hidden"
-          >
-            {mobileHomeActive ? (
-              <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
-                <MobileHome onOpenApp={onSelectWindow} />
-              </div>
-            ) : null}
+                const isMobileActive = !mobileHomeActive && windowType === activeWindow;
+                const isCompact = windowType === "calculator" || windowType === "uptime";
+                const dimensions =
+                  windowAreaSize.width > 0 && windowAreaSize.height > 0
+                    ? getWindowSize(windowType, windowAreaSize.width, windowAreaSize.height)
+                    : null;
+                const wrapperClassName = windowState.isMaximized
+                  ? "absolute inset-0"
+                  : "absolute min-h-0";
+                const clampedPosition = clampPosition(
+                  windowType,
+                  windowState.x,
+                  windowState.y,
+                );
 
-            {(() => {
-              return (Object.keys(windows ?? {}) as WindowType[])
-                .filter((windowType) => {
-                  const windowState = windows?.[windowType];
-                  return Boolean(windowState?.isOpen && !windowState.isMinimized);
-                })
-                .map((windowType) => {
-                  const windowState = windows?.[windowType];
-                  if (!windowState) {
-                    return null;
-                  }
-
-                  const isMobileActive = !mobileHomeActive && windowType === activeWindow;
-                  const isCompact = windowType === "calculator" || windowType === "uptime";
-                  const dimensions =
-                    windowAreaSize.width > 0 && windowAreaSize.height > 0
-                      ? getWindowSize(windowType, windowAreaSize.width, windowAreaSize.height)
-                      : null;
-                  const wrapperClassName = windowState.isMaximized
-                    ? "absolute inset-0"
-                    : "absolute min-h-0";
-                  const clampedPosition = clampPosition(
-                    windowType,
-                    windowState.x,
-                    windowState.y,
-                  );
-
-                  const windowTitle: ReactNode =
-                    windowType === "agent" ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span>{windowTitles[windowType]}</span>
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4ade80]">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
-                          live
-                        </span>
+                const windowTitle: ReactNode =
+                  windowType === "agent" ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <span>{windowTitles[windowType]}</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4ade80]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+                        live
                       </span>
-                    ) : (
-                      windowTitles[windowType]
-                    );
-
-                  return (
-                    <div
-                      key={windowType}
-                      className={`${wrapperClassName} ${
-                        isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
-                      } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${mobileWindowBottomClass}`}
-                      ref={(node) => {
-                        windowWrapperRefs.current[windowType] = node;
-                      }}
-                      style={
-                        windowState.isMaximized
-                          ? { zIndex: windowState.zIndex }
-                          : {
-                              left: clampedPosition.x,
-                              top: clampedPosition.y,
-                              width: dimensions?.width,
-                              height: dimensions?.height,
-                              zIndex: windowState.zIndex,
-                            }
-                      }
-                    >
-                      <Window
-                        title={windowTitle}
-                        isCompact={isCompact && !windowState.isMaximized}
-                        isMaximized={windowState.isMaximized}
-                        zIndex={windowState.zIndex}
-                        onFocus={() => onBringToFront(windowType)}
-                        onTitleBarMouseDown={startDrag(windowType)}
-                        onMinimize={() => onMinimizeWindow(windowType)}
-                        onMaximize={() => onMaximizeWindow(windowType)}
-                        onClose={() => onCloseWindow(windowType)}
-                      >
-                        <WindowRenderer
-                          windowType={windowType}
-                          wallpapers={wallpapers}
-                          selectedWallpaper={selectedWallpaper}
-                          onSelectWallpaper={onSelectWallpaper}
-                        />
-                      </Window>
-                    </div>
+                    </span>
+                  ) : (
+                    windowTitles[windowType]
                   );
-                });
-            })()}
-          </div>
+
+                return (
+                  <div
+                    key={windowType}
+                    className={`${wrapperClassName} ${
+                      isMobileActive ? "max-md:mobile-app-fade-in z-10" : "max-md:hidden"
+                    } max-md:!inset-x-0 max-md:!top-0 max-md:!left-0 max-md:!h-auto max-md:!w-full ${mobileWindowBottomClass}`}
+                    ref={(node) => {
+                      windowWrapperRefs.current[windowType] = node;
+                    }}
+                    style={
+                      windowState.isMaximized
+                        ? { zIndex: windowState.zIndex }
+                        : {
+                            left: clampedPosition.x,
+                            top: clampedPosition.y,
+                            width: dimensions?.width,
+                            height: dimensions?.height,
+                            zIndex: windowState.zIndex,
+                          }
+                    }
+                  >
+                    <Window
+                      title={windowTitle}
+                      isCompact={isCompact && !windowState.isMaximized}
+                      isMaximized={windowState.isMaximized}
+                      zIndex={windowState.zIndex}
+                      onFocus={() => onBringToFront(windowType)}
+                      onTitleBarMouseDown={startDrag(windowType)}
+                      onMinimize={() => onMinimizeWindow(windowType)}
+                      onMaximize={() => onMaximizeWindow(windowType)}
+                      onClose={() => onCloseWindow(windowType)}
+                    >
+                      <WindowRenderer
+                        windowType={windowType}
+                        wallpapers={wallpapers}
+                        selectedWallpaper={selectedWallpaper}
+                        onSelectWallpaper={onSelectWallpaper}
+                      />
+                    </Window>
+                  </div>
+                );
+              });
+          })()}
         </div>
       </div>
+
+      {/* Bottom floating dock replaces the old left sidebar — desktop only.
+          Hidden (faded out, not unmounted) whenever a window is maximized. */}
+      <Dock activeWindow={activeWindow} onSelect={onSelectWindow} isHidden={isAnyWindowMaximized} />
 
       <MobileTabBar
         activeWindow={mobileHomeActive ? null : activeWindow}

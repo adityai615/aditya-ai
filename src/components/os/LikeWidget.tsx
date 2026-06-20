@@ -19,9 +19,17 @@ function readHasLikedFlag() {
 
 type LikeWidgetProps = {
   className?: string;
+  /**
+   * "pill" (default): standalone rounded pill with its own border/background —
+   * use anywhere LikeWidget sits on its own against the wallpaper.
+   * "bare": no border/background/padding of its own — use when nesting inside
+   * an already-styled container (e.g. the unified top bar cluster), so it
+   * doesn't render a pill-inside-a-pill.
+   */
+  variant?: "pill" | "bare";
 };
 
-export function LikeWidget({ className }: LikeWidgetProps) {
+export function LikeWidget({ className, variant = "pill" }: LikeWidgetProps) {
   const [count, setCount] = useState<number | null>(null);
   const [hasLiked, setHasLiked] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -181,14 +189,19 @@ export function LikeWidget({ className }: LikeWidgetProps) {
       });
   };
 
+  const buttonClassName =
+    variant === "bare"
+      ? `relative inline-flex h-full cursor-pointer items-center gap-1.5 px-2.5 text-[var(--os-text)] ${className ?? ""}`
+      : `relative inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-[18px] text-[var(--os-text)] ${className ?? ""}`;
+
   return (
-    <div className={`relative ${className ?? ""}`}>
+    <div className="relative">
       <button
         ref={buttonRef}
         type="button"
         onClick={handleLike}
         aria-label="Like aditya.os"
-        className="relative inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full border-[0.5px] border-[var(--os-border)] bg-[var(--os-surface)] px-[18px] text-[var(--os-text)] transition-colors hover:bg-[var(--os-hover)]"
+        className={buttonClassName}
       >
         <span
           ref={heartRef}
