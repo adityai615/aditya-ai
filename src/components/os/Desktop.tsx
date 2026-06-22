@@ -73,27 +73,27 @@ export function Desktop({
     if (windowType === "calculator") {
       return {
         width: Math.min(360, maxWidth),
-        height: Math.min(540, maxHeight),
+        height: Math.min(580, maxHeight),
       };
     }
 
     if (windowType === "uptime") {
       return {
         width: Math.min(380, maxWidth),
-        height: Math.min(300, maxHeight),
+        height: Math.min(340, maxHeight),
       };
     }
 
     if (windowType === "resume") {
       return {
         width: Math.min(980, maxWidth),
-        height: Math.min(Math.round(containerHeight * 0.82), maxHeight),
+        height: Math.min(Math.round(containerHeight * 0.9), maxHeight),
       };
     }
 
     return {
       width: Math.min(1040, maxWidth),
-      height: Math.min(Math.round(containerHeight * 0.8), maxHeight),
+      height: Math.min(Math.round(containerHeight * 0.88), maxHeight),
     };
   };
 
