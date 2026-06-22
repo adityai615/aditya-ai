@@ -3,6 +3,7 @@
 import type { WindowType } from "./types";
 import { APP_DEFINITIONS, type AppId } from "@/lib/apps";
 import { APP_ICONS } from "@/lib/app-icons";
+import { DOCK_EXTERNAL_LINKS } from "@/lib/dock-links";
 
 type DockProps = {
   activeWindow: WindowType;
@@ -64,6 +65,7 @@ export function Dock({ activeWindow, onSelect, isHidden = false }: DockProps) {
         {groups.map((groupIds, groupIndex) => {
           const apps = groupIds.map((id) => appById.get(id)).filter(Boolean);
           if (!apps.length) return null;
+          const isLastGroup = groupIndex === groups.length - 1;
 
           return (
             <div key={groupIndex} className="flex items-end gap-2">
@@ -144,6 +146,61 @@ export function Dock({ activeWindow, onSelect, isHidden = false }: DockProps) {
                   </div>
                 );
               })}
+
+              {isLastGroup
+                ? DOCK_EXTERNAL_LINKS.map((link) => {
+                    const Icon = link.icon;
+
+                    return (
+                      <div key={link.id} className="group/icon relative flex flex-col items-center">
+                        <span
+                          className="pointer-events-none absolute bottom-[calc(100%+16px)] left-1/2 z-10 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-[7px] px-2.5 py-[5px] text-[11.5px] font-medium text-white opacity-0 shadow-[0_8px_20px_rgba(0,0,0,0.45)] transition-[opacity,transform] duration-150 ease-out delay-100 group-hover/icon:translate-y-0 group-hover/icon:opacity-100"
+                          style={{
+                            background: "rgba(28,30,36,0.96)",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                            backdropFilter: "blur(12px)",
+                          }}
+                        >
+                          {link.title}
+                          <span
+                            className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45"
+                            style={{
+                              background: "rgba(28,30,36,0.96)",
+                              borderRight: "1px solid rgba(255,255,255,0.12)",
+                              borderBottom: "1px solid rgba(255,255,255,0.12)",
+                            }}
+                            aria-hidden="true"
+                          />
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            window.open(link.href, "_blank", "noopener,noreferrer")
+                          }
+                          aria-label={link.title}
+                          className="relative flex items-center justify-center rounded-[15px] transition-transform duration-200 ease-out will-change-transform hover:-translate-y-1.5 hover:scale-[1.08] active:scale-[1.02]"
+                          style={{
+                            width: ICON_SIZE,
+                            height: ICON_SIZE,
+                            background:
+                              "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 100%)",
+                            boxShadow:
+                              "0 4px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.14)",
+                          }}
+                        >
+                          <Icon
+                            size={20}
+                            strokeWidth={1.7}
+                            className="text-[rgba(255,255,255,0.88)]"
+                          />
+                        </button>
+
+                        <span className="mt-1.5 h-[4px] w-[4px] rounded-full" aria-hidden="true" />
+                      </div>
+                    );
+                  })
+                : null}
             </div>
           );
         })}
