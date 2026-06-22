@@ -234,20 +234,19 @@ export function Desktop({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="mx-auto h-full min-h-0 w-full">
-        {/* Window area is now full-width: the dock floats over it at
-            the bottom instead of reserving a fixed-width left column. */}
-        <div
-          ref={windowAreaRef}
-          className="relative h-full min-h-0 flex-1 overflow-hidden"
-        >
-          {mobileHomeActive ? (
-            <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
-              <MobileHome onOpenApp={onSelectWindow} />
-            </div>
-          ) : null}
+      <div
+        ref={windowAreaRef}
+        className={`absolute inset-x-0 top-0 overflow-hidden max-md:bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] ${
+          isAnyWindowMaximized ? "md:bottom-0" : "md:bottom-[var(--desktop-dock-inset)]"
+        }`}
+      >
+        {mobileHomeActive ? (
+          <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
+            <MobileHome onOpenApp={onSelectWindow} />
+          </div>
+        ) : null}
 
-          {(() => {
+        {(() => {
             return (Object.keys(windows ?? {}) as WindowType[])
               .filter((windowType) => {
                 const windowState = windows?.[windowType];
@@ -329,8 +328,7 @@ export function Desktop({
                   </div>
                 );
               });
-          })()}
-        </div>
+        })()}
       </div>
 
       {/* Bottom floating dock replaces the old left sidebar — desktop only.

@@ -10,6 +10,7 @@
   --os-dot: rgba(0, 0, 0, 0.03);
   --mobile-tab-bar-height: 3.5rem;
   --mobile-agent-composer-height: 4rem;
+  --desktop-dock-inset: 7rem;
 }
 
 .dark {
