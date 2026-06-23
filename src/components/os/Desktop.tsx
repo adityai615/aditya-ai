@@ -59,8 +59,7 @@ export function Desktop({
     {},
   );
 
-  const mobileWindowBottomClass =
-    "max-md:!bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))]";
+  const mobileWindowBottomClass = "max-md:!bottom-0";
 
   const getWindowSize = (
     windowType: WindowType,
@@ -241,7 +240,7 @@ export function Desktop({
         }`}
       >
         {mobileHomeActive ? (
-          <div className="absolute inset-x-0 top-0 bottom-[calc(var(--mobile-tab-bar-height)+env(safe-area-inset-bottom))] max-md:mobile-app-fade-in md:hidden">
+          <div className="absolute inset-x-0 top-0 bottom-0 max-md:mobile-app-fade-in md:hidden">
             <MobileHome onOpenApp={onSelectWindow} />
           </div>
         ) : null}
